@@ -160,7 +160,8 @@ export class StatusBannerCard extends LitElement {
       this._config.entity,
       this._config.rules,
       this._config.default,
-      this._config.color_map
+      this._config.color_map,
+      this._config.status_label
     );
 
     const variant = this._config.variant || 'full';
@@ -211,7 +212,7 @@ export class StatusBannerCard extends LitElement {
     return html`
       <div class="body">
         <div class="status-box">
-          <span class="status-label" style="color: ${display.color}">Status:</span>
+          <span class="status-label" style="color: ${display.color}">${display.statusLabel}:</span>
           <span class="status-text">${display.statusText}</span>
         </div>
       </div>

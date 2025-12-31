@@ -65,7 +65,8 @@ export function resolveDisplayData(
   entityId: string,
   rules: StateRule[] | undefined,
   defaultConfig: Partial<DisplayConfig> | undefined,
-  colorMap: Record<string, string> | undefined
+  colorMap: Record<string, string> | undefined,
+  statusLabelConfig?: string
 ): DisplayData {
   const entity = hass.states[entityId];
 
@@ -74,6 +75,7 @@ export function resolveDisplayData(
     return {
       ...ERROR_DISPLAY,
       subtitle: entityId,
+      statusLabel: statusLabelConfig || 'Status',
     };
   }
 
@@ -102,5 +104,6 @@ export function resolveDisplayData(
     icon: parseTemplate(source.icon || 'mdi:information', context),
     color: parseTemplate(source.color || '#9E9E9E', context),
     statusText: parseTemplate(source.status_text || '', context),
+    statusLabel: parseTemplate(statusLabelConfig || 'Status', context),
   };
 }

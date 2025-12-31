@@ -12,6 +12,7 @@ export const DEFAULT_CONFIG: Partial<StatusBannerCardConfig> = {
   border_radius: '16px',
   variant: 'full',
   timestamp_attribute: 'last_triggered',
+  status_label: 'Status',
   color_map: {
     blue: '#2196F3',
     green: '#4CAF50',

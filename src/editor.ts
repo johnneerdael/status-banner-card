@@ -232,6 +232,13 @@ export class StatusBannerCardEditor extends LitElement {
               this._updateDefault('color', (e.target as HTMLInputElement).value)}
           />
         </div>
+
+        <ha-textfield
+          .value=${defaultConfig.status_text ?? ''}
+          .label=${'Default Status Text'}
+          @input=${(e: Event) =>
+            this._updateDefault('status_text', (e.target as HTMLInputElement).value)}
+        ></ha-textfield>
       </div>
     `;
   }
@@ -359,6 +366,13 @@ export class StatusBannerCardEditor extends LitElement {
               this._valueChanged('show_status', (e.target as HTMLInputElement).checked)}
           ></ha-switch>
         </div>
+
+        <ha-textfield
+          .value=${this._config.status_label || 'Status'}
+          .label=${'Status Label (Status/Strategy/Whatever)'}
+          @input=${(e: Event) =>
+            this._valueChanged('status_label', (e.target as HTMLInputElement).value)}
+        ></ha-textfield>
 
         <div class="toggle-row">
           <span>Show Footer</span>

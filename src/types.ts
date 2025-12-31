@@ -46,6 +46,9 @@ export interface StatusBannerCardConfig {
   /** Show diagonal stripe pattern on header accent */
   show_pattern?: boolean;
 
+  /** Custom label for status box header (e.g., Status, Strategy) */
+  status_label?: string;
+
   /** Show status box below header */
   show_status?: boolean;
 
@@ -114,6 +117,7 @@ export interface DisplayData {
   icon: string;
   color: string;
   statusText: string;
+  statusLabel: string;
 }
 
 /**
