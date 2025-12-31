@@ -19,6 +19,10 @@ A flexible Home Assistant Lovelace card with a distinctive banner design for dis
 - 🌙 **Theme Support** - Respects Home Assistant themes
 - 📋 **Visual Editor** - Full GUI configuration
 
+## Examples
+[EV Charging Blueprint](https://gist.github.com/johnneerdael/a71b316da3ece86165fe3ae4a9668023.js](https://gist.githubusercontent.com/johnneerdael/a71b316da3ece86165fe3ae4a9668023/raw/d06c38c4ce01cc7582e6c29174533ec96ccd4ac6/ev-charging-001.yaml)
+[Card Screenshot]()
+
 ## Installation
 
 ### HACS (Recommended)
