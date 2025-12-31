@@ -22,8 +22,11 @@ A flexible Home Assistant Lovelace card with a distinctive banner design for dis
 ## Examples
 
 ![EV Charging Card](https://github.com/johnneerdael/status-banner-card/blob/main/examples/ev-charging.png?raw=true)
+
 - [EV Charging Blueprint](https://gist.githubusercontent.com/johnneerdael/a71b316da3ece86165fe3ae4a9668023/raw/d06c38c4ce01cc7582e6c29174533ec96ccd4ac6/ev-charging-001.yaml), Addons used: Lynk&Co, Zonneplan, and PirateWeather, Camera Integration and LLM Vision + AI Task
+
 ![Smart Bin Detection Card](https://github.com/johnneerdael/status-banner-card/blob/main/examples/garbage-collection.png?raw=true)
+
 - [Smart Bin Detection Blueprint](https://gist.githubusercontent.com/johnneerdael/f1907f11554b50ee9eee3391987f9092/raw/d105230acd8447b602b1cbea8638129085405083/garbage-collection-001.yaml), Addons used: Afvalbeheer, Time and Date, TTS and Camera Integration and LLM Vision
 
 ## Installation
