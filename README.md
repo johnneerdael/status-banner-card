@@ -6,8 +6,6 @@
 
 A flexible Home Assistant Lovelace card with a distinctive banner design for displaying entity states. Perfect for garbage collection schedules, EV charging status, alarm systems, or any status-driven automation.
 
-![1.00](docs/preview.png)
-
 ## What's New
 
 ### v1.1.4 - Accent Toggle
