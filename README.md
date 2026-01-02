@@ -4,7 +4,7 @@
 [![GitHub Release](https://img.shields.io/github/release/johnneerdael/status-banner-card.svg)](https://github.com/johnneerdael/status-banner-card/releases)
 ![GitHub License](https://img.shields.io/github/license/johnneerdael/status-banner-card?link=https%3A%2F%2Fgithub.com%2Fjohnneerdael%2Fstatus-banner-card%2Fblob%2Fmain%2FLICENSE)
 
-A flexible Home Assistant Lovelace card with a distinctive banner design for displaying entity states. This card excels at displaying "Call to Action" information—situations where the user needs to know something immediately or do something specific. Because of the distinct banner style and the ability to map colors to a flexible number of states, it works best for cards that should support 2 or more different types of states differently.
+A flexible Home Assistant Lovelace card with a distinctive banner design for displaying entity states. This card excels at displaying "Call to Action" information—situations where the user needs to know something immediately or do something specific. Because of the distinct banner style and the ability to map colors to a flexible number of states, it works best for cards that should support 2 or more different types of states differently. Unique is that the card has no limit to the number of states or associated state colors that you want to report on.
 
 ## What's New
 
