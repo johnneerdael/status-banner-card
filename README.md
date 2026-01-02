@@ -10,14 +10,16 @@ A flexible Home Assistant Lovelace card with a distinctive banner design for dis
 
 ## Features
 
-* 🎨 **Distinctive Banner Design** - Angled color accent with optional diagonal stripe pattern
-* 🔧 **Fully Configurable** - Rule-based state-to-display mapping
-* 📝 **Template Support** - Use `{{ state }}`, `{{ attr.name }}`, filters, and more
-* 🎯 **Action Support** - Tap actions, button actions, service calls
-* 🌈 **Color Mapping** - Define color palettes for dynamic theming
-* 📱 **Responsive** - Works on all screen sizes
-* 🌙 **Theme Support** - Respects Home Assistant themes
-* 📋 **Visual Editor** - Full GUI configuration
+* **Distinctive Banner Design** - Angled color accent with optional diagonal stripe pattern
+* **Fully Configurable** - Rule-based state-to-display mapping
+* **Template Support** - Use `{{ state }}`, `{{ attr.name }}`, filters, and more
+* **Typography Control** - Per-rule font size and weight for title/subtitle
+* **Pattern Customization** - Adjustable rotation (-100% to +100%) and stripe size
+* **Action Support** - Tap actions, button actions, service calls
+* **Color Mapping** - Define color palettes for dynamic theming
+* **Responsive** - Works on all screen sizes
+* **Theme Support** - Respects Home Assistant themes
+* **Visual Editor** - Full GUI configuration with sliders and dropdowns
 
 ## Examples
 
@@ -97,27 +99,33 @@ color_map:
 
 Each rule in the `rules` array can have:
 
-| Option        | Type   | Description                                                 |
-| ------------- | ------ | ----------------------------------------------------------- |
-| `state`       | string | State value to match (exact or `/regex/`)                   |
-| `attribute`   | object | Match on attribute: `{ name: "attr_name", value: "value" }` |
-| `title`       | string | Title text (supports templates)                             |
-| `subtitle`    | string | Subtitle text (supports templates)                          |
-| `icon`        | string | MDI icon (e.g., `mdi:home`)                                 |
-| `color`       | string | Hex color or template with `color_map`                      |
-| `status_text` | string | Status box text (supports templates)                        |
+| Option                 | Type   | Description                                                 |
+| ---------------------- | ------ | ----------------------------------------------------------- |
+| `state`                | string | State value to match (exact or `/regex/`)                   |
+| `attribute`            | object | Match on attribute: `{ name: "attr_name", value: "value" }` |
+| `title`                | string | Title text (supports templates)                             |
+| `subtitle`             | string | Subtitle text (supports templates)                          |
+| `icon`                 | string | MDI icon (e.g., `mdi:home`)                                 |
+| `color`                | string | Hex color or template with `color_map`                      |
+| `status_text`          | string | Status box text (supports templates)                        |
+| `title_font_size`      | string | Title font size (CSS value, e.g., `1.5rem`, `24px`)         |
+| `title_font_weight`    | string | Title font weight (`400`, `500`, `700`, `900`)              |
+| `subtitle_font_size`   | string | Subtitle font size (CSS value, e.g., `1rem`, `16px`)        |
+| `subtitle_font_weight` | string | Subtitle font weight (`400`, `500`, `700`, `900`)           |
 
 ### Layout Options
 
-| Option          | Type    | Default | Description                                    |
-| --------------- | ------- | ------- | ---------------------------------------------- |
-| `show_pattern`  | boolean | `true`  | Show diagonal stripe pattern                   |
-| `show_status`   | boolean | `true`  | Show status box                                |
-| `show_footer`   | boolean | `true`  | Show footer with timestamp/button              |
-| `header_height` | string  | `120px` | Header section height                          |
-| `icon_size`     | string  | `54px`  | Main icon size                                 |
-| `border_radius` | string  | `16px`  | Card corner radius                             |
-| `variant`       | string  | `full`  | Card variant: `full`, `header-only`, `compact` |
+| Option             | Type    | Default | Description                                                      |
+| ------------------ | ------- | ------- | ---------------------------------------------------------------- |
+| `show_pattern`     | boolean | `true`  | Show diagonal stripe pattern                                     |
+| `pattern_rotation` | number  | `0`     | Pattern rotation: -100% (horizontal) to +100% (vertical)         |
+| `pattern_size`     | number  | `20`    | Pattern stripe size in pixels                                    |
+| `show_status`      | boolean | `true`  | Show status box                                                  |
+| `show_footer`      | boolean | `true`  | Show footer with timestamp/button                                |
+| `header_height`    | string  | `120px` | Header section height                                            |
+| `icon_size`        | string  | `54px`  | Main icon size                                                   |
+| `border_radius`    | string  | `16px`  | Card corner radius                                               |
+| `variant`          | string  | `full`  | Card variant: `full`, `header-only`, `compact`                   |
 
 ### Footer Options
 
@@ -458,6 +466,40 @@ default:
   title: "CPU TEMP: {{ state }}°C"
   icon: mdi:thermometer-high
   color: "#F44336"
+```
+
+### Custom Typography & Pattern
+
+```YAML
+type: custom:status-banner-card
+entity: sensor.important_alert
+pattern_rotation: 25
+pattern_size: 15
+
+rules:
+  - state: critical
+    title: "CRITICAL ALERT"
+    title_font_size: "2rem"
+    title_font_weight: "900"
+    subtitle: "Immediate action required"
+    subtitle_font_size: "1rem"
+    subtitle_font_weight: "700"
+    icon: mdi:alert-octagon
+    color: "#F44336"
+
+  - state: warning
+    title: "Warning"
+    title_font_size: "1.25rem"
+    title_font_weight: "500"
+    subtitle: "Review when possible"
+    icon: mdi:alert
+    color: "#FF9800"
+
+default:
+  title: "All Clear"
+  title_font_size: "1.5rem"
+  icon: mdi:check-circle
+  color: "#4CAF50"
 ```
 
 ## Additional Ideas for Use-Cases

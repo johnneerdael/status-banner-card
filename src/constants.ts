@@ -13,6 +13,8 @@ export const DEFAULT_CONFIG: Partial<StatusBannerCardConfig> = {
   variant: 'full',
   timestamp_attribute: 'last_triggered',
   status_label: 'Status',
+  pattern_rotation: 0,
+  pattern_size: 20,
   color_map: {
     blue: '#2196F3',
     green: '#4CAF50',

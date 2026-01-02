@@ -184,16 +184,23 @@ export class StatusBannerCard extends LitElement {
 
   private _renderHeader(display: DisplayData): TemplateResult {
     const showPattern = this._config.show_pattern !== false;
+    const patternAngle = this._getPatternAngle();
+    const patternSize = this._config.pattern_size ?? 20;
 
     return html`
       <div class="header" style="--header-height: ${this._config.header_height}">
         <div
           class="header-accent ${showPattern ? 'with-pattern' : ''}"
-          style="--accent-color: ${display.color}"
+          style="--accent-color: ${display.color}; --pattern-angle: ${patternAngle}deg; --pattern-size: ${patternSize}px"
         ></div>
 
         <div class="header-content">
-          <div class="header-text">
+          <div class="header-text" style="
+            ${display.titleFontSize ? `--title-font-size: ${display.titleFontSize};` : ''}
+            ${display.titleFontWeight ? `--title-font-weight: ${display.titleFontWeight};` : ''}
+            ${display.subtitleFontSize ? `--subtitle-font-size: ${display.subtitleFontSize};` : ''}
+            ${display.subtitleFontWeight ? `--subtitle-font-weight: ${display.subtitleFontWeight};` : ''}
+          ">
             <div class="title">${display.title}</div>
             ${display.subtitle ? html`<div class="subtitle">${display.subtitle}</div>` : nothing}
           </div>
@@ -206,6 +213,15 @@ export class StatusBannerCard extends LitElement {
         </div>
       </div>
     `;
+  }
+
+  /**
+   * Convert pattern rotation percentage to degrees
+   * -100% = 0deg (horizontal), 0% = 45deg (default), +100% = 90deg (vertical)
+   */
+  private _getPatternAngle(): number {
+    const rotation = this._config.pattern_rotation ?? 0;
+    return 45 + (rotation * 0.45);
   }
 
   private _renderStatusBox(display: DisplayData): TemplateResult {
@@ -364,7 +380,7 @@ window.customCards.push({
 
 // Log version info
 console.info(
-  `%c  STATUS-BANNER-CARD  %c  v1.0.0  `,
+  `%c  STATUS-BANNER-CARD  %c  v1.1.0  `,
   'color: white; background: #2196F3; font-weight: bold;',
   'color: #2196F3; background: white; font-weight: bold;'
 );

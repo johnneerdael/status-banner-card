@@ -66,6 +66,12 @@ export interface StatusBannerCardConfig {
 
   /** Card style variant */
   variant?: 'full' | 'header-only' | 'compact';
+
+  /** Pattern rotation percentage: -100% = 0deg, 0% = 45deg (default), +100% = 90deg */
+  pattern_rotation?: number;
+
+  /** Pattern stripe size in pixels (default: 20) */
+  pattern_size?: number;
 }
 
 /**
@@ -95,6 +101,18 @@ export interface StateRule {
 
   /** Status text template for status box */
   status_text?: string;
+
+  /** Title font size (CSS value, e.g., '1.5rem', '24px') */
+  title_font_size?: string;
+
+  /** Title font weight (CSS value, e.g., 'bold', '900', '500') */
+  title_font_weight?: string;
+
+  /** Subtitle font size (CSS value, e.g., '1.125rem', '18px') */
+  subtitle_font_size?: string;
+
+  /** Subtitle font weight (CSS value, e.g., '500', 'normal') */
+  subtitle_font_weight?: string;
 }
 
 /**
@@ -106,6 +124,10 @@ export interface DisplayConfig {
   icon: string;
   color: string;
   status_text?: string;
+  title_font_size?: string;
+  title_font_weight?: string;
+  subtitle_font_size?: string;
+  subtitle_font_weight?: string;
 }
 
 /**
@@ -118,6 +140,10 @@ export interface DisplayData {
   color: string;
   statusText: string;
   statusLabel: string;
+  titleFontSize?: string;
+  titleFontWeight?: string;
+  subtitleFontSize?: string;
+  subtitleFontWeight?: string;
 }
 
 /**

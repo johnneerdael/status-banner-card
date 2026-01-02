@@ -52,7 +52,7 @@ export const styles = css`
 
   .header-accent.with-pattern {
     background-image: linear-gradient(
-      45deg,
+      var(--pattern-angle, 45deg),
       rgba(255, 255, 255, 0.15) 25%,
       transparent 25%,
       transparent 50%,
@@ -61,7 +61,7 @@ export const styles = css`
       transparent 75%,
       transparent
     );
-    background-size: 20px 20px;
+    background-size: var(--pattern-size, 20px) var(--pattern-size, 20px);
   }
 
   .header-content {
@@ -83,8 +83,8 @@ export const styles = css`
   }
 
   .title {
-    font-size: 1.5rem;
-    font-weight: 900;
+    font-size: var(--title-font-size, 1.5rem);
+    font-weight: var(--title-font-weight, 900);
     text-transform: uppercase;
     line-height: 1;
     letter-spacing: 0.05em;
@@ -93,8 +93,8 @@ export const styles = css`
   }
 
   .subtitle {
-    font-size: 1.125rem;
-    font-weight: 500;
+    font-size: var(--subtitle-font-size, 1.125rem);
+    font-weight: var(--subtitle-font-weight, 500);
     opacity: 0.6;
     margin-top: 4px;
     color: var(--sbc-secondary-text);

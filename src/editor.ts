@@ -145,12 +145,54 @@ export class StatusBannerCardEditor extends LitElement {
             this._updateRule(index, 'title', (e.target as HTMLInputElement).value)}
         ></ha-textfield>
 
+        <div class="font-controls">
+          <ha-textfield
+            .value=${rule.title_font_size || ''}
+            .label=${'Title Font Size (e.g., 1.5rem, 24px)'}
+            @input=${(e: Event) =>
+              this._updateRule(index, 'title_font_size', (e.target as HTMLInputElement).value)}
+          ></ha-textfield>
+          <ha-select
+            .value=${rule.title_font_weight || ''}
+            .label=${'Title Font Weight'}
+            @selected=${(e: CustomEvent) =>
+              this._updateRule(index, 'title_font_weight', (e.target as HTMLSelectElement).value)}
+          >
+            <mwc-list-item value="">Default (Black)</mwc-list-item>
+            <mwc-list-item value="400">Normal (400)</mwc-list-item>
+            <mwc-list-item value="500">Medium (500)</mwc-list-item>
+            <mwc-list-item value="700">Bold (700)</mwc-list-item>
+            <mwc-list-item value="900">Black (900)</mwc-list-item>
+          </ha-select>
+        </div>
+
         <ha-textfield
           .value=${rule.subtitle || ''}
           .label=${'Subtitle (supports {{ templates }})'}
           @input=${(e: Event) =>
             this._updateRule(index, 'subtitle', (e.target as HTMLInputElement).value)}
         ></ha-textfield>
+
+        <div class="font-controls">
+          <ha-textfield
+            .value=${rule.subtitle_font_size || ''}
+            .label=${'Subtitle Font Size (e.g., 1rem, 16px)'}
+            @input=${(e: Event) =>
+              this._updateRule(index, 'subtitle_font_size', (e.target as HTMLInputElement).value)}
+          ></ha-textfield>
+          <ha-select
+            .value=${rule.subtitle_font_weight || ''}
+            .label=${'Subtitle Font Weight'}
+            @selected=${(e: CustomEvent) =>
+              this._updateRule(index, 'subtitle_font_weight', (e.target as HTMLSelectElement).value)}
+          >
+            <mwc-list-item value="">Default (Medium)</mwc-list-item>
+            <mwc-list-item value="400">Normal (400)</mwc-list-item>
+            <mwc-list-item value="500">Medium (500)</mwc-list-item>
+            <mwc-list-item value="700">Bold (700)</mwc-list-item>
+            <mwc-list-item value="900">Black (900)</mwc-list-item>
+          </ha-select>
+        </div>
 
         <ha-icon-picker
           .hass=${this.hass}
@@ -342,6 +384,8 @@ export class StatusBannerCardEditor extends LitElement {
   // ─────────────────────────────────────────────────────────────
 
   private _renderLayoutSection(): TemplateResult {
+    const patternRotation = this._config.pattern_rotation ?? 0;
+
     return html`
       <div class="section">
         <div class="section-header">
@@ -357,6 +401,40 @@ export class StatusBannerCardEditor extends LitElement {
               this._valueChanged('show_pattern', (e.target as HTMLInputElement).checked)}
           ></ha-switch>
         </div>
+
+        ${this._config.show_pattern !== false
+          ? html`
+              <div class="slider-row">
+                <label>Pattern Rotation: ${patternRotation}%</label>
+                <div class="slider-container">
+                  <span class="slider-label">-100%</span>
+                  <input
+                    type="range"
+                    min="-100"
+                    max="100"
+                    .value=${String(patternRotation)}
+                    @input=${(e: Event) =>
+                      this._valueChanged(
+                        'pattern_rotation',
+                        Number((e.target as HTMLInputElement).value)
+                      )}
+                  />
+                  <span class="slider-label">+100%</span>
+                </div>
+              </div>
+
+              <ha-textfield
+                type="number"
+                .value=${String(this._config.pattern_size ?? 20)}
+                .label=${'Pattern Size (px)'}
+                @input=${(e: Event) =>
+                  this._valueChanged(
+                    'pattern_size',
+                    Number((e.target as HTMLInputElement).value) || 20
+                  )}
+              ></ha-textfield>
+            `
+          : nothing}
 
         <div class="toggle-row">
           <span>Show Status Box</span>
@@ -707,6 +785,73 @@ export class StatusBannerCardEditor extends LitElement {
         justify-content: space-between;
         align-items: center;
         padding: 8px 0;
+      }
+
+      /* Font Controls */
+      .font-controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .font-controls ha-textfield,
+      .font-controls ha-select {
+        margin-bottom: 0;
+      }
+
+      /* Slider Row */
+      .slider-row {
+        margin-bottom: 12px;
+      }
+
+      .slider-row label {
+        display: block;
+        font-size: 0.875rem;
+        color: var(--secondary-text-color);
+        margin-bottom: 8px;
+      }
+
+      .slider-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .slider-container input[type='range'] {
+        flex: 1;
+        height: 4px;
+        -webkit-appearance: none;
+        appearance: none;
+        background: var(--divider-color);
+        border-radius: 2px;
+        outline: none;
+      }
+
+      .slider-container input[type='range']::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        cursor: pointer;
+      }
+
+      .slider-container input[type='range']::-moz-range-thumb {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        cursor: pointer;
+        border: none;
+      }
+
+      .slider-label {
+        font-size: 0.75rem;
+        color: var(--secondary-text-color);
+        min-width: 40px;
+        text-align: center;
       }
 
       /* Add Button */
