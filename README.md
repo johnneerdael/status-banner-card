@@ -8,6 +8,10 @@ A flexible Home Assistant Lovelace card with a distinctive banner design for dis
 
 ## What's New
 
+### v1.3.1 - AI Vision Blueprint
+- **Garbage Collection Blueprint** - Ready-to-use automation blueprint using AI Vision (LLM Vision) for smart bin detection
+- Blueprint is importable directly from `blueprints/garbage_vision_verification.yaml`
+
 ### v1.3.0 - Editor Overhaul & New Features
 - **Fixed Button Overlay Bug** - Footer now uses proper document flow instead of absolute positioning
 - **Icon Color Override** - New `icon_color` option to set icon color independently of accent
@@ -73,6 +77,27 @@ A flexible Home Assistant Lovelace card with a distinctive banner design for dis
 ![1.00](https://github.com/johnneerdael/status-banner-card/blob/main/examples/garbage-collection.png?raw=true)
 
 * [Smart Bin Detection Blueprint](https://gist.githubusercontent.com/johnneerdael/f1907f11554b50ee9eee3391987f9092/raw/d105230acd8447b602b1cbea8638129085405083/garbage-collection-001.yaml), Addons used: Afvalbeheer, Time and Date, TTS and Camera Integration and LLM Vision
+
+## Blueprints
+
+This repository includes ready-to-use Home Assistant blueprints that complement the Status Banner Card.
+
+### Garbage Collection: Vision Verification
+
+An AI-powered automation that uses camera snapshots to verify bin placement. Features:
+- **Dual-mode operation** - "Put Out" checks (evening) and "Bring In" checks (afternoon)
+- **Multi-camera support** - Analyze snapshots from multiple cameras
+- **LLM Vision integration** - AI counts bins by color in images
+- **Configurable bin colors** - Map your local trash names to bin colors
+- **Memory system** - Remembers bin status throughout the day
+- **Notifications** - Mobile alerts and optional TTS announcements
+
+**Requirements:**
+- [LLM Vision](https://github.com/valentinfrlch/ha-llmvision) integration
+- `input_text` helper for memory storage
+- Camera entities for bin detection
+
+**Import:** Copy `blueprints/garbage_vision_verification.yaml` to your Home Assistant's `blueprints/automation/` directory, or use the Import Blueprint feature with the raw file URL.
 
 ## Installation
 

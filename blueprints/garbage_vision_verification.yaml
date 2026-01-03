@@ -1,0 +1,429 @@
+blueprint:
+  name: "Garbage Collection: Vision Verification"
+  description: >
+    Automated bin status checker using AI Vision.
+
+    1. Checks schedule (Tomorrow's trash = Put Out? Today's trash = Brought In?).
+    2. Snapshots cameras and uses AI to count bins by color.
+    3. Notifies specific devices and/or broadcasts TTS if bins are in the wrong place.
+
+    REQUIRES: 'llmvision' integration and an input_text helper for memory.
+
+    Works great with Status Banner Card for visualization!
+  domain: automation
+  source_url: https://github.com/johnneerdael/status-banner-card/blob/main/blueprints/garbage_vision_verification.yaml
+  input:
+    section_sensors:
+      name: "1. Trash Schedule Sensors"
+      description: "Sensors that report what trash is being collected."
+      icon: mdi:calendar
+      collapsed: false
+      input:
+        sensor_tomorrow:
+          name: Trash Schedule (Tomorrow)
+          description: Sensor that states what trash is picked up tomorrow.
+          selector:
+            entity:
+              domain: sensor
+        sensor_today:
+          name: Trash Schedule (Today)
+          description: Sensor that states what trash is being picked up today.
+          selector:
+            entity:
+              domain: sensor
+
+    section_cameras:
+      name: "2. Cameras & Lighting"
+      description: "Camera(s) to inspect for bins and optional floodlight."
+      icon: mdi:cctv
+      collapsed: false
+      input:
+        cameras:
+          name: Cameras
+          description: Select one or more cameras to inspect for bins.
+          selector:
+            entity:
+              domain: camera
+              multiple: true
+        floodlight:
+          name: Floodlight (Optional)
+          description: Light to turn on before taking the snapshot (e.g., for night checks).
+          default: []
+          selector:
+            entity:
+              domain: light
+              multiple: true
+
+    section_ai:
+      name: "3. AI Vision Configuration"
+      description: "Settings for the LLM Vision integration."
+      icon: mdi:robot
+      collapsed: true
+      input:
+        vision_provider:
+          name: AI Provider ID
+          description: The ID from LLM Vision (e.g., OpenAI, Gemini provider ID).
+          selector:
+            text: {}
+        vision_model:
+          name: AI Model
+          description: Model to use (e.g., gemini-2.0-flash, gpt-4o).
+          default: "gemini-2.0-flash"
+          selector:
+            text: {}
+
+    section_mappings:
+      name: "4. Bin Color Mappings"
+      description: "Map your sensor states to bin colors. This translates your local trash names."
+      icon: mdi:palette
+      collapsed: true
+      input:
+        state_black:
+          name: "Sensor State: Black Bin"
+          description: What does your sensor call the Black bin? (e.g. 'restafval', 'general', 'landfill')
+          default: "restafval"
+          selector:
+            text: {}
+        state_green:
+          name: "Sensor State: Green Bin"
+          description: What does your sensor call the Green bin? (e.g. 'gft', 'organic', 'compost')
+          default: "gft"
+          selector:
+            text: {}
+        state_blue:
+          name: "Sensor State: Blue Bin"
+          description: What does your sensor call the Blue bin? (e.g. 'papier', 'paper', 'recycling')
+          default: "papier"
+          selector:
+            text: {}
+        state_purple:
+          name: "Sensor State: Purple Bin"
+          description: What does your sensor call the Purple/Plastic bin? (e.g. 'pmd', 'plastic')
+          default: "pmd"
+          selector:
+            text: {}
+
+    section_helpers:
+      name: "5. Required Helpers"
+      description: "You must create these helpers before using this blueprint."
+      icon: mdi:cog
+      collapsed: false
+      input:
+        memory_helper:
+          name: Memory Helper (Input Text)
+          description: "Required: An input_text helper to remember bin status throughout the day."
+          selector:
+            entity:
+              domain: input_text
+        manual_trigger:
+          name: Manual Test Button
+          description: "Optional: Button to force a run and debug the AI response."
+          selector:
+            entity:
+              domain: input_button
+
+    section_notifications:
+      name: "6. Notifications"
+      description: "Where to send alerts when bins need attention."
+      icon: mdi:bell
+      collapsed: true
+      input:
+        notify_device:
+          name: Mobile Device
+          description: Phone to receive text notifications.
+          selector:
+            device:
+              integration: mobile_app
+        tts_target:
+          name: TTS Speakers (Optional)
+          description: Speakers for urgent "Forgot the bin" announcements.
+          default: []
+          selector:
+            entity:
+              domain: media_player
+              multiple: true
+
+    section_schedule:
+      name: "7. Schedule"
+      description: "When to check bin status."
+      icon: mdi:clock-outline
+      collapsed: true
+      input:
+        time_put_out:
+          name: "Check: Put Out"
+          description: Time to check if bin is ready for tomorrow's collection.
+          default: "19:00:00"
+          selector:
+            time: {}
+        time_bring_in:
+          name: "Check: Bring In"
+          description: Time to start checking if bin has been returned.
+          default: "14:30:00"
+          selector:
+            time: {}
+
+mode: parallel
+max: 10
+
+trigger:
+  - platform: state
+    entity_id: !input manual_trigger
+    id: manual_test
+  - platform: time
+    at: !input time_put_out
+    id: init_put_out
+  - platform: time
+    at: !input time_bring_in
+    id: init_bring_in
+  - platform: time
+    at:
+      - "10:00:00"
+      - "14:00:00"
+      - "18:00:00"
+      - "20:00:00"
+      - "22:00:00"
+    id: loop_check
+  - platform: time
+    at: "22:00:00"
+    id: urgent_put_out
+  - platform: time
+    at: "20:00:00"
+    id: urgent_bring_in
+
+variables:
+  # Inputs to Variables
+  s_tomorrow: !input sensor_tomorrow
+  s_today: !input sensor_today
+  mem_entity: !input memory_helper
+  map_blk: !input state_black
+  map_grn: !input state_green
+  map_blu: !input state_blue
+  map_pur: !input state_purple
+
+  # Get Raw States
+  raw_tomorrow: "{{ states(s_tomorrow) | lower }}"
+  raw_today: "{{ states(s_today) | lower }}"
+  mem_state: "{{ states(mem_entity) }}"
+
+  # Logic: Determine Target Color for Tomorrow
+  target_color_tomorrow: >-
+    {% if raw_tomorrow == map_blk %}black
+    {% elif raw_tomorrow == map_grn %}green
+    {% elif raw_tomorrow == map_blu %}blue
+    {% elif raw_tomorrow == map_pur %}purple
+    {% else %}none{% endif %}
+
+  # Logic: Determine Target Color for Today
+  target_color_today: >-
+    {% if raw_today == map_blk %}black
+    {% elif raw_today == map_grn %}green
+    {% elif raw_today == map_blu %}blue
+    {% elif raw_today == map_pur %}purple
+    {% else %}none{% endif %}
+
+condition:
+  - condition: or
+    conditions:
+      # 1. Always run if Manual
+      - condition: trigger
+        id: manual_test
+
+      # 2. Run 'Put Out' logic only if there IS trash tomorrow
+      - condition: and
+        conditions:
+          - condition: trigger
+            id: [init_put_out, urgent_put_out]
+          - condition: template
+            value_template: "{{ target_color_tomorrow != 'none' }}"
+
+      # 3. Run 'Bring In' logic only if there IS trash today
+      - condition: and
+        conditions:
+          - condition: trigger
+            id: [init_bring_in, urgent_bring_in]
+          - condition: template
+            value_template: "{{ target_color_today != 'none' }}"
+
+      # 4. Run 'Loop' only if we are actively tracking something (Memory is set)
+      - condition: and
+        conditions:
+          - condition: trigger
+            id: loop_check
+          - condition: template
+            value_template: "{{ mem_state not in ['unknown', 'unavailable', ''] }}"
+
+action:
+  # --- STEP 1: INITIALIZE MEMORY ---
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: init_bring_in
+        sequence:
+          - action: input_text.set_value
+            target:
+              entity_id: !input memory_helper
+            data:
+              value: "{{ target_color_today }}"
+
+  # --- STEP 2: PREPARE SCENE ---
+  - action: light.turn_on
+    target:
+      entity_id: !input floodlight
+  - delay: "00:00:05"
+
+  # --- STEP 3: AI ANALYSIS ---
+  - action: llmvision.image_analyzer
+    response_variable: vision_response
+    data:
+      provider: !input vision_provider
+      model: !input vision_model
+      max_tokens: 200
+      temperature: 0.1
+      include_filename: true
+      target_width: 1920
+      image_entity: !input cameras
+      message: >-
+        Analyze all provided images to count waste bins.
+
+        Task: Count the number of bins (or bin lids) visible in the images, categorized by color.
+        Sum the counts from all images (e.g., if you see 1 black in image A and 1 black in image B, total is 2).
+
+        Strictly return this JSON format:
+        {"black": 0, "green": 0, "blue": 0, "purple": 0}
+
+  # --- STEP 4: CLEANUP ---
+  - action: light.turn_off
+    target:
+      entity_id: !input floodlight
+
+  # --- STEP 5: PARSE RESULTS ---
+  - variables:
+      vision_json: >-
+        {{ vision_response.response_text | replace('```json', '') | replace('```', '') | from_json }}
+      cnt_black: "{{ vision_json.black | int(0) }}"
+      cnt_green: "{{ vision_json.green | int(0) }}"
+      cnt_blue: "{{ vision_json.blue | int(0) }}"
+      cnt_purple: "{{ vision_json.purple | int(0) }}"
+
+  # --- STEP 6: EXECUTE LOGIC ---
+  - choose:
+      # BRANCH A: MANUAL DEBUG
+      - conditions:
+          - condition: trigger
+            id: manual_test
+        sequence:
+          - domain: mobile_app
+            type: notify
+            device_id: !input notify_device
+            title: "🤖 Vision Debug"
+            message: >-
+              Black: {{ cnt_black }} | Green: {{ cnt_green }}
+              Blue: {{ cnt_blue }} | Purple: {{ cnt_purple }}
+
+              Raw: {{ vision_json }}
+
+      # BRANCH B: PUT OUT (Is the bin at the house?)
+      - conditions:
+          - condition: trigger
+            id: [init_put_out, urgent_put_out]
+        sequence:
+          - variables:
+              active_color: "{{ target_color_tomorrow }}"
+              count_at_home: >-
+                {% if active_color == 'black' %}{{ cnt_black }}
+                {% elif active_color == 'green' %}{{ cnt_green }}
+                {% elif active_color == 'blue' %}{{ cnt_blue }}
+                {% elif active_color == 'purple' %}{{ cnt_purple }}
+                {% else %}0{% endif %}
+          - if:
+              - condition: template
+                value_template: "{{ count_at_home | int > 0 }}"
+            then:
+              - domain: mobile_app
+                type: notify
+                device_id: !input notify_device
+                title: "Put Out: {{ active_color | capitalize }} Bin"
+                message: "The {{ active_color }} bin is still detected at the house."
+                data:
+                  push:
+                    sound:
+                      name: default
+                      critical: 1
+                      volume: 1
+              # Urgent TTS
+              - if:
+                  - condition: trigger
+                    id: urgent_put_out
+                then:
+                  - action: tts.cloud_say
+                    target:
+                      entity_id: !input tts_target
+                    data:
+                      message: "Please put the {{ active_color }} bin outside."
+
+      # BRANCH C: BRING IN (Is the bin missing?)
+      - conditions:
+          - condition: trigger
+            id: [init_bring_in, urgent_bring_in, loop_check]
+        sequence:
+          - variables:
+              # Use memory if set, otherwise fallback to sensor (for first run)
+              active_color: >-
+                {% if mem_state not in ['unknown', 'unavailable', ''] %}
+                  {{ mem_state }}
+                {% else %}
+                  {{ target_color_today }}
+                {% endif %}
+              count_returned: >-
+                {% if active_color == 'black' %}{{ cnt_black }}
+                {% elif active_color == 'green' %}{{ cnt_green }}
+                {% elif active_color == 'blue' %}{{ cnt_blue }}
+                {% elif active_color == 'purple' %}{{ cnt_purple }}
+                {% else %}0{% endif %}
+          - if:
+              - condition: template
+                value_template: "{{ count_returned | int > 0 }}"
+            then:
+              # SUCCESS: Bin is back! Clear memory.
+              - action: input_text.set_value
+                target:
+                  entity_id: !input memory_helper
+                data:
+                  value: ""
+              - domain: mobile_app
+                type: notify
+                device_id: !input notify_device
+                title: "✓ Bin Returned"
+                message: "The {{ active_color }} bin has been returned."
+            else:
+              # FAILURE: Bin is still missing.
+              - action: input_text.set_value
+                target:
+                  entity_id: !input memory_helper
+                data:
+                  value: "{{ active_color }}"
+              # Only notify on specific checks to avoid spamming the loop
+              - if:
+                  - condition: trigger
+                    id: [init_bring_in, urgent_bring_in]
+                then:
+                  - domain: mobile_app
+                    type: notify
+                    device_id: !input notify_device
+                    title: "Bring In: {{ active_color | capitalize }} Bin"
+                    message: "The {{ active_color }} bin is still missing."
+                    data:
+                      push:
+                        sound:
+                          name: default
+                          critical: 1
+                          volume: 1
+                  - if:
+                      - condition: trigger
+                        id: urgent_bring_in
+                    then:
+                      - action: tts.cloud_say
+                        target:
+                          entity_id: !input tts_target
+                        data:
+                          message: "Attention. The {{ active_color }} bin has not been returned."
