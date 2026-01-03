@@ -8,6 +8,14 @@ A flexible Home Assistant Lovelace card with a distinctive banner design for dis
 
 ## What's New
 
+### v1.3.0 - Editor Overhaul & New Features
+- **Fixed Button Overlay Bug** - Footer now uses proper document flow instead of absolute positioning
+- **Icon Color Override** - New `icon_color` option to set icon color independently of accent
+- **Center Alignment** - Title and icon alignment now support left/center/right
+- **Status Entity** - Display content from any entity (text_helper, sensor) in status box with `status_entity`
+- **Reorganized Editor** - Improved section ordering and merged Triangle controls into Layout
+- **Footer Controls Moved** - "Show Footer" toggle now in Alignment section
+
 ### v1.2.0 - Flexible Layout & Triangle Control
 - **Triangle Corner Control** - Configure `accent_start` and `accent_end` to any corner (top-left, top-right, bottom-left, bottom-right)
 - **Full Background Mode** - Set `accent_full_background: true` to fill entire card with accent color

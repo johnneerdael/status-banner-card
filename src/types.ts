@@ -55,6 +55,12 @@ export interface StatusBannerCardConfig {
   /** Show status box below header */
   show_status?: boolean;
 
+  /** Entity to display in status box (alternative to rule-based status_text) */
+  status_entity?: string;
+
+  /** Attribute to display from status_entity (optional, uses state if not set) */
+  status_entity_attribute?: string;
+
   /** Show footer with timestamp and button */
   show_footer?: boolean;
 
@@ -97,11 +103,14 @@ export interface StatusBannerCardConfig {
   /** Timestamp text color override (CSS color) */
   timestamp_color?: string;
 
+  /** Icon color override (CSS color) */
+  icon_color?: string;
+
   /** Title/subtitle alignment (default: right) */
-  title_alignment?: 'left' | 'right';
+  title_alignment?: 'left' | 'center' | 'right';
 
   /** Icon alignment, independent of title (default: right) */
-  icon_alignment?: 'left' | 'right';
+  icon_alignment?: 'left' | 'center' | 'right';
 
   /** Timestamp position (default: bottom-left) */
   timestamp_position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';

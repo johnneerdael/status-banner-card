@@ -159,6 +159,16 @@ export class StatusBannerCard extends LitElement {
         }
       }
 
+      // Check status entity
+      if (this._config.status_entity) {
+        if (
+          oldHass.states[this._config.status_entity] !==
+          this.hass.states[this._config.status_entity]
+        ) {
+          return true;
+        }
+      }
+
       return false;
     }
 
@@ -243,8 +253,8 @@ export class StatusBannerCard extends LitElement {
     const timestampColor = this._config.timestamp_color;
 
     // Alignment settings
-    const titleAlignment = this._config.title_alignment ?? 'right';
-    const iconAlignment = this._config.icon_alignment ?? 'right';
+    const titleAlignment: 'left' | 'center' | 'right' = this._config.title_alignment ?? 'right';
+    const iconAlignment: 'left' | 'center' | 'right' = this._config.icon_alignment ?? 'right';
 
     // Position settings
     const timestampPosition = this._config.timestamp_position ?? 'bottom-left';
@@ -272,32 +282,47 @@ export class StatusBannerCard extends LitElement {
 
   private _renderHeader(
     display: DisplayData,
-    titleAlignment: 'left' | 'right',
-    iconAlignment: 'left' | 'right',
+    titleAlignment: 'left' | 'center' | 'right',
+    iconAlignment: 'left' | 'center' | 'right',
     titleColor?: string,
     subtitleColor?: string
   ): TemplateResult {
     // Determine flex layout based on alignments
-    const sameAlignment = titleAlignment === iconAlignment;
-    const justifyContent = sameAlignment
-      ? (titleAlignment === 'right' ? 'flex-end' : 'flex-start')
-      : 'space-between';
+    let justifyContent: string;
+    let flexDirection = 'row';
 
-    // Icon order: if both right or icon-left/title-right, icon comes after text in DOM but may be reordered
-    const iconOrder = iconAlignment === 'left' ? -1 : 1;
-    const textOrder = titleAlignment === 'left' ? -1 : 1;
+    // When icon is centered, stack vertically
+    if (iconAlignment === 'center') {
+      flexDirection = 'column';
+      justifyContent = 'center';
+    } else if (titleAlignment === 'center') {
+      // Title centered with icon on a side (iconAlignment is already not 'center' here)
+      justifyContent = iconAlignment === 'left' ? 'flex-start' : 'flex-end';
+    } else {
+      const sameAlignment = titleAlignment === iconAlignment;
+      if (sameAlignment) {
+        justifyContent = titleAlignment === 'right' ? 'flex-end' : 'flex-start';
+      } else {
+        justifyContent = 'space-between';
+      }
+    }
+
+    // Icon order: determines position in flex layout
+    const iconOrder = iconAlignment === 'left' ? -1 : (iconAlignment === 'center' ? 0 : 1);
+    const textOrder = titleAlignment === 'left' ? -1 : (titleAlignment === 'center' ? 0 : 1);
 
     // Text alignment
     const textAlign = titleAlignment;
 
-    // Margin: when same side, add gap between icon and text
-    const textMargin = sameAlignment
+    // Margin: when same side (not center), add gap between icon and text
+    const sameNonCenterAlignment = titleAlignment === iconAlignment && titleAlignment !== 'center';
+    const textMargin = sameNonCenterAlignment
       ? (titleAlignment === 'right' ? 'margin-right: 20px;' : 'margin-left: 20px;')
-      : '';
+      : (titleAlignment === 'center' && iconAlignment !== 'center' ? 'flex: 1; margin: 0 20px;' : '');
 
     return html`
       <div class="header" style="--header-height: ${this._config.header_height}">
-        <div class="header-content" style="justify-content: ${justifyContent};">
+        <div class="header-content" style="justify-content: ${justifyContent}; flex-direction: ${flexDirection};">
           <div class="header-text" style="
             text-align: ${textAlign};
             order: ${textOrder};
@@ -312,7 +337,7 @@ export class StatusBannerCard extends LitElement {
           <ha-icon
             class="header-icon"
             .icon=${display.icon}
-            style="--mdc-icon-size: ${this._config.icon_size}; color: ${display.color}; order: ${iconOrder};"
+            style="--mdc-icon-size: ${this._config.icon_size}; color: ${this._config.icon_color || display.color}; order: ${iconOrder};"
           ></ha-icon>
         </div>
       </div>
@@ -322,11 +347,24 @@ export class StatusBannerCard extends LitElement {
   private _renderStatusBox(display: DisplayData): TemplateResult {
     const statusOpacity = (this._config.status_opacity ?? 90) / 100;
 
+    // Determine status text: status_entity takes priority over rule-based status_text
+    let statusText = display.statusText;
+    if (this._config.status_entity) {
+      const statusEntity = this.hass.states[this._config.status_entity];
+      if (statusEntity) {
+        if (this._config.status_entity_attribute) {
+          statusText = String(statusEntity.attributes[this._config.status_entity_attribute] ?? '');
+        } else {
+          statusText = statusEntity.state;
+        }
+      }
+    }
+
     return html`
       <div class="body">
         <div class="status-box" style="--status-opacity: ${statusOpacity}">
           <span class="status-label" style="color: ${display.color}">${display.statusLabel}:</span>
-          <span class="status-text">${display.statusText}</span>
+          <span class="status-text">${statusText}</span>
         </div>
       </div>
     `;
@@ -345,36 +383,45 @@ export class StatusBannerCard extends LitElement {
       return html``;
     }
 
-    // Position CSS mapping
-    const positionStyles: Record<Position, string> = {
-      'top-left': 'top: 16px; left: 24px;',
-      'top-right': 'top: 16px; right: 24px;',
-      'bottom-left': 'bottom: 16px; left: 24px;',
-      'bottom-right': 'bottom: 16px; right: 24px;',
-    };
+    // Determine which elements go left vs right (ignoring top positions for footer)
+    const timestampOnLeft = timestampPosition.includes('left');
+    const buttonOnLeft = buttonPosition.includes('left');
 
-    // Check if timestamp and button share same position
-    const samePosition = timestamp && buttonAction && timestampPosition === buttonPosition;
+    // Build left and right content arrays
+    const leftContent: TemplateResult[] = [];
+    const rightContent: TemplateResult[] = [];
 
-    // If same position, render as stacked container
-    if (samePosition) {
-      const stackAlign = buttonPosition.includes('right') ? 'flex-end' : 'flex-start';
-      return html`
-        <div class="footer-stack" style="${positionStyles[buttonPosition]} align-items: ${stackAlign};">
-          <div class="timestamp" style="${timestampColor ? `color: ${timestampColor};` : ''}">Last Check: ${timestamp}</div>
-          ${this._renderButton(buttonAction!, display)}
-        </div>
-      `;
+    if (timestamp) {
+      const timestampHtml = html`<div class="timestamp" style="${timestampColor ? `color: ${timestampColor};` : ''}">Last Check: ${timestamp}</div>`;
+      if (timestampOnLeft) {
+        leftContent.push(timestampHtml);
+      } else {
+        rightContent.push(timestampHtml);
+      }
     }
 
-    // Otherwise, render timestamp and button independently
+    if (buttonAction) {
+      const buttonHtml = this._renderButton(buttonAction, display);
+      if (buttonOnLeft) {
+        leftContent.push(buttonHtml);
+      } else {
+        rightContent.push(buttonHtml);
+      }
+    }
+
+    // Determine footer class based on content distribution
+    let footerClass = 'footer';
+    if (leftContent.length > 0 && rightContent.length === 0) {
+      footerClass += ' left-only';
+    } else if (rightContent.length > 0 && leftContent.length === 0) {
+      footerClass += ' right-only';
+    }
+
     return html`
-      ${timestamp
-        ? html`<div class="timestamp positioned" style="${positionStyles[timestampPosition]} ${timestampColor ? `color: ${timestampColor};` : ''}">Last Check: ${timestamp}</div>`
-        : nothing}
-      ${buttonAction
-        ? html`<div class="button-wrapper" style="${positionStyles[buttonPosition]}">${this._renderButton(buttonAction, display)}</div>`
-        : nothing}
+      <div class="${footerClass}">
+        ${leftContent.length > 0 ? html`<div class="footer-left">${leftContent}</div>` : nothing}
+        ${rightContent.length > 0 ? html`<div class="footer-right">${rightContent}</div>` : nothing}
+      </div>
     `;
   }
 
@@ -505,7 +552,7 @@ window.customCards.push({
 
 // Log version info
 console.info(
-  `%c  STATUS-BANNER-CARD  %c  v1.2.1  `,
+  `%c  STATUS-BANNER-CARD  %c  v1.3.0  `,
   'color: white; background: #2196F3; font-weight: bold;',
   'color: #2196F3; background: white; font-weight: bold;'
 );

@@ -148,15 +148,44 @@ export const styles = css`
   }
 
   /* ═══════════════════════════════════════════════════════════════
-     FOOTER (positioned elements)
+     FOOTER (proper document flow)
      ═══════════════════════════════════════════════════════════════ */
 
-  .footer-stack {
-    position: absolute;
+  .footer {
+    position: relative;
     z-index: 1;
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .footer.left-only {
+    justify-content: flex-start;
+  }
+
+  .footer.right-only {
+    justify-content: flex-end;
+  }
+
+  .footer.center {
+    justify-content: center;
+  }
+
+  .footer-left,
+  .footer-right {
     display: flex;
     flex-direction: column;
     gap: 8px;
+  }
+
+  .footer-left {
+    align-items: flex-start;
+  }
+
+  .footer-right {
+    align-items: flex-end;
   }
 
   .timestamp {
@@ -164,16 +193,6 @@ export const styles = css`
     font-family: var(--paper-font-code-family, monospace);
     opacity: 0.4;
     color: var(--sbc-primary-text);
-  }
-
-  .timestamp.positioned {
-    position: absolute;
-    z-index: 1;
-  }
-
-  .button-wrapper {
-    position: absolute;
-    z-index: 1;
   }
 
   .action-btn {

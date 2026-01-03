@@ -31,10 +31,10 @@ export class StatusBannerCardEditor extends LitElement {
 
     return html`
       <div class="editor-container">
-        ${this._renderEntitySection()} ${this._renderRulesSection()} ${this._renderDefaultSection()}
-        ${this._renderColorMapSection()} ${this._renderFooterSection()}
-        ${this._renderLayoutSection()} ${this._renderTriangleSection()}
-        ${this._renderAlignmentSection()} ${this._renderTextColorsSection()}
+        ${this._renderEntitySection()} ${this._renderColorMapSection()}
+        ${this._renderLayoutSection()} ${this._renderAlignmentSection()}
+        ${this._renderTextColorsSection()} ${this._renderRulesSection()}
+        ${this._renderDefaultSection()} ${this._renderFooterSection()}
       </div>
     `;
   }
@@ -440,6 +440,47 @@ export class StatusBannerCardEditor extends LitElement {
                   <span class="slider-label">150%</span>
                 </div>
               </div>
+
+              <div class="subsection-header">Triangle Shape</div>
+
+              <div class="toggle-row">
+                <span>Full Background (No Triangle)</span>
+                <ha-switch
+                  .checked=${this._config.accent_full_background === true}
+                  @change=${(e: Event) =>
+                    this._valueChanged('accent_full_background', (e.target as HTMLInputElement).checked)}
+                ></ha-switch>
+              </div>
+
+              ${this._config.accent_full_background !== true
+                ? html`
+                    <ha-select
+                      .value=${this._config.accent_start || 'bottom-left'}
+                      .label=${'Triangle Start Corner'}
+                      @selected=${(e: CustomEvent) =>
+                        this._valueChanged('accent_start', (e.target as any).value)}
+                      @closed=${(e: Event) => e.stopPropagation()}
+                    >
+                      <mwc-list-item value="top-left">Top Left</mwc-list-item>
+                      <mwc-list-item value="top-right">Top Right</mwc-list-item>
+                      <mwc-list-item value="bottom-left">Bottom Left</mwc-list-item>
+                      <mwc-list-item value="bottom-right">Bottom Right</mwc-list-item>
+                    </ha-select>
+
+                    <ha-select
+                      .value=${this._config.accent_end || 'top-right'}
+                      .label=${'Triangle End Corner'}
+                      @selected=${(e: CustomEvent) =>
+                        this._valueChanged('accent_end', (e.target as any).value)}
+                      @closed=${(e: Event) => e.stopPropagation()}
+                    >
+                      <mwc-list-item value="top-left">Top Left</mwc-list-item>
+                      <mwc-list-item value="top-right">Top Right</mwc-list-item>
+                      <mwc-list-item value="bottom-left">Bottom Left</mwc-list-item>
+                      <mwc-list-item value="bottom-right">Bottom Right</mwc-list-item>
+                    </ha-select>
+                  `
+                : nothing}
             `
           : nothing}
 
@@ -461,6 +502,26 @@ export class StatusBannerCardEditor extends LitElement {
                   this._valueChanged('status_label', (e.target as HTMLInputElement).value)}
               ></ha-textfield>
 
+              <ha-entity-picker
+                .hass=${this.hass}
+                .value=${this._config.status_entity || ''}
+                .label=${'Status Entity (optional - overrides rule status_text)'}
+                @value-changed=${(e: CustomEvent) =>
+                  this._valueChanged('status_entity', e.detail.value)}
+                allow-custom-entity
+              ></ha-entity-picker>
+
+              ${this._config.status_entity
+                ? html`
+                    <ha-textfield
+                      .value=${this._config.status_entity_attribute || ''}
+                      .label=${'Status Entity Attribute (optional - uses state if empty)'}
+                      @input=${(e: Event) =>
+                        this._valueChanged('status_entity_attribute', (e.target as HTMLInputElement).value)}
+                    ></ha-textfield>
+                  `
+                : nothing}
+
               <div class="slider-row">
                 <label>Status Box Opacity: ${statusOpacity}%</label>
                 <div class="slider-container">
@@ -481,15 +542,6 @@ export class StatusBannerCardEditor extends LitElement {
               </div>
             `
           : nothing}
-
-        <div class="toggle-row">
-          <span>Show Footer</span>
-          <ha-switch
-            .checked=${this._config.show_footer !== false}
-            @change=${(e: Event) =>
-              this._valueChanged('show_footer', (e.target as HTMLInputElement).checked)}
-          ></ha-switch>
-        </div>
 
         <ha-textfield
           .value=${this._config.header_height || '120px'}
@@ -516,80 +568,13 @@ export class StatusBannerCardEditor extends LitElement {
   }
 
   // ─────────────────────────────────────────────────────────────
-  // Triangle Section
-  // ─────────────────────────────────────────────────────────────
-
-  private _renderTriangleSection(): TemplateResult {
-    if (this._config.show_accent === false) {
-      return html``;
-    }
-
-    const corners = [
-      { value: 'top-left', label: 'Top Left' },
-      { value: 'top-right', label: 'Top Right' },
-      { value: 'bottom-left', label: 'Bottom Left' },
-      { value: 'bottom-right', label: 'Bottom Right' },
-    ];
-
-    return html`
-      <div class="section">
-        <div class="section-header">
-          <ha-icon icon="mdi:triangle"></ha-icon>
-          <span>Triangle Shape</span>
-        </div>
-        <p class="section-description">Control the accent triangle corners</p>
-
-        <div class="toggle-row">
-          <span>Full Background (No Triangle)</span>
-          <ha-switch
-            .checked=${this._config.accent_full_background === true}
-            @change=${(e: Event) =>
-              this._valueChanged('accent_full_background', (e.target as HTMLInputElement).checked)}
-          ></ha-switch>
-        </div>
-
-        ${this._config.accent_full_background !== true
-          ? html`
-              <ha-select
-                .value=${this._config.accent_start || 'bottom-left'}
-                .label=${'Triangle Start Corner'}
-                @selected=${(e: CustomEvent) =>
-                  this._valueChanged('accent_start', (e.target as any).value)}
-                @closed=${(e: Event) => e.stopPropagation()}
-              >
-                ${corners.map(
-                  (corner) => html`
-                    <mwc-list-item .value=${corner.value}>${corner.label}</mwc-list-item>
-                  `
-                )}
-              </ha-select>
-
-              <ha-select
-                .value=${this._config.accent_end || 'top-right'}
-                .label=${'Triangle End Corner'}
-                @selected=${(e: CustomEvent) =>
-                  this._valueChanged('accent_end', (e.target as any).value)}
-                @closed=${(e: Event) => e.stopPropagation()}
-              >
-                ${corners.map(
-                  (corner) => html`
-                    <mwc-list-item .value=${corner.value}>${corner.label}</mwc-list-item>
-                  `
-                )}
-              </ha-select>
-            `
-          : nothing}
-      </div>
-    `;
-  }
-
-  // ─────────────────────────────────────────────────────────────
   // Alignment Section
   // ─────────────────────────────────────────────────────────────
 
   private _renderAlignmentSection(): TemplateResult {
     const alignments = [
       { value: 'left', label: 'Left' },
+      { value: 'center', label: 'Center' },
       { value: 'right', label: 'Right' },
     ];
 
@@ -637,10 +622,19 @@ export class StatusBannerCardEditor extends LitElement {
           )}
         </ha-select>
 
+        <div class="subsection-header">Footer</div>
+
+        <div class="toggle-row">
+          <span>Show Footer</span>
+          <ha-switch
+            .checked=${this._config.show_footer !== false}
+            @change=${(e: Event) =>
+              this._valueChanged('show_footer', (e.target as HTMLInputElement).checked)}
+          ></ha-switch>
+        </div>
+
         ${this._config.show_footer !== false
           ? html`
-              <div class="subsection-header">Footer</div>
-
               <ha-select
                 .value=${this._config.timestamp_position || 'bottom-left'}
                 .label=${'Timestamp Position'}
@@ -759,6 +753,32 @@ export class StatusBannerCardEditor extends LitElement {
                   <ha-icon-button
                     .path=${'M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z'}
                     @click=${() => this._valueChanged('timestamp_color', undefined)}
+                  ></ha-icon-button>
+                `
+              : nothing}
+          </div>
+        </div>
+
+        <div class="color-input">
+          <label>Icon Color</label>
+          <div class="color-input-row">
+            <input
+              type="color"
+              .value=${this._config.icon_color || '#9E9E9E'}
+              @input=${(e: Event) =>
+                this._valueChanged('icon_color', (e.target as HTMLInputElement).value)}
+            />
+            <ha-textfield
+              .value=${this._config.icon_color || ''}
+              .placeholder=${'Default (accent color)'}
+              @input=${(e: Event) =>
+                this._valueChanged('icon_color', (e.target as HTMLInputElement).value || undefined)}
+            ></ha-textfield>
+            ${this._config.icon_color
+              ? html`
+                  <ha-icon-button
+                    .path=${'M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z'}
+                    @click=${() => this._valueChanged('icon_color', undefined)}
                   ></ha-icon-button>
                 `
               : nothing}
