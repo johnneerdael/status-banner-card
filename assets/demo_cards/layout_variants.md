@@ -1,6 +1,7 @@
 # Standard Layout Variants
 
 ## 1. Classic Right-Aligned
+
 The default layout. Title and Icon on the right, perfect for stacking on the left side of a dashboard view.
 
 ```yaml
@@ -19,6 +20,7 @@ rules:
 ```
 
 ## 2. Left-Aligned Inverted
+
 Mirror image layout. Useful for the right side of a dashboard.
 
 ```yaml
@@ -39,6 +41,7 @@ rules:
 ```
 
 ## 3. Centered Layout
+
 Symmetrical layout with centered text and icon.
 
 ```yaml
@@ -58,6 +61,7 @@ rules:
 ```
 
 ## 4. Full Background (Urgent)
+
 Fills the card with color for critical alerts.
 
 ```yaml
@@ -76,6 +80,7 @@ rules:
 ```
 
 ## 5. Compact Mode
+
 Minimalist version without footer or status box.
 
 ```yaml
