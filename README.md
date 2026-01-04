@@ -8,6 +8,14 @@ A flexible Home Assistant Lovelace card with a distinctive banner design for dis
 
 ## What's New
 
+### v1.4.0 - User Experience & Alignment Refinement
+- **Improved Alignment Logic** - Fixed "Center" alignment to properly stack and center content without overlapping
+- **Editor UI Overhaul** - Reorganized editor sections to follow a logical flow (Entity -> Color Map -> Layout -> Alignment -> Rules)
+- **Enhanced Rule Clarity** - Added clear labels in the editor for Rule-to-Title/Subtitle mapping
+- **Status Box Prepending** - Improved "Status Label" behavior for dual-mode status box (Prepending label vs Sensor content)
+- **Robust Entity Picker** - Fixed issues where sensors could appear "detached" or unavailable in the primary picker
+- **New Icon Color Option** - Set icon color independently of the accent color in Layout options
+
 ### v1.3.1 - AI Vision Blueprint
 - **Garbage Collection Blueprint** - Ready-to-use automation blueprint using AI Vision (LLM Vision) for smart bin detection
 - Blueprint is importable directly from `blueprints/garbage_vision_verification.yaml`

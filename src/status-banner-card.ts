@@ -104,10 +104,6 @@ export class StatusBannerCard extends LitElement {
   // ─────────────────────────────────────────────────────────────
 
   public setConfig(config: StatusBannerCardConfig): void {
-    if (!config.entity) {
-      throw new Error('You need to define an entity');
-    }
-
     // Merge with defaults
     this._config = {
       ...DEFAULT_CONFIG,
@@ -220,6 +216,18 @@ export class StatusBannerCard extends LitElement {
       return html``;
     }
 
+    if (!this._config.entity) {
+      return html`
+        <ha-card>
+          <div class="card-container" style="padding: 16px;">
+            <ha-alert alert-type="warning">
+              Please define a primary entity in the editor.
+            </ha-alert>
+          </div>
+        </ha-card>
+      `;
+    }
+
     const display = resolveDisplayData(
       this.hass,
       this._config.entity,
@@ -320,12 +328,17 @@ export class StatusBannerCard extends LitElement {
       ? (titleAlignment === 'right' ? 'margin-right: 20px;' : 'margin-left: 20px;')
       : (titleAlignment === 'center' && iconAlignment !== 'center' ? 'flex: 1; margin: 0 20px;' : '');
 
+    // Title text: when icon is centered, it's above/below.
+    // Otherwise, it might need to flex to push icon to edge.
+    const textFlex = titleAlignment === 'center' && iconAlignment !== 'center' ? 'flex: 1;' : '';
+
     return html`
       <div class="header" style="--header-height: ${this._config.header_height}">
         <div class="header-content" style="justify-content: ${justifyContent}; flex-direction: ${flexDirection};">
           <div class="header-text" style="
             text-align: ${textAlign};
             order: ${textOrder};
+            ${textFlex}
             ${textMargin}
             ${display.titleFontSize ? `--title-font-size: ${display.titleFontSize};` : ''}
             ${display.subtitleFontSize ? `--subtitle-font-size: ${display.subtitleFontSize};` : ''}
@@ -552,7 +565,7 @@ window.customCards.push({
 
 // Log version info
 console.info(
-  `%c  STATUS-BANNER-CARD  %c  v1.3.1  `,
+  `%c  STATUS-BANNER-CARD  %c  v1.4.0  `,
   'color: white; background: #2196F3; font-weight: bold;',
   'color: #2196F3; background: white; font-weight: bold;'
 );

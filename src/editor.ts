@@ -48,13 +48,13 @@ export class StatusBannerCardEditor extends LitElement {
       <div class="section">
         <div class="section-header">
           <ha-icon icon="mdi:database"></ha-icon>
-          <span>Entity</span>
+          <span>Entity & Sensors</span>
         </div>
 
         <ha-entity-picker
           .hass=${this.hass}
           .value=${this._config.entity || ''}
-          .label=${'Primary Entity (required)'}
+          .label=${'Primary Entity (State Source)'}
           @value-changed=${(e: CustomEvent) => this._valueChanged('entity', e.detail.value)}
           allow-custom-entity
         ></ha-entity-picker>
@@ -62,8 +62,7 @@ export class StatusBannerCardEditor extends LitElement {
         <ha-entity-picker
           .hass=${this.hass}
           .value=${this._config.timestamp_entity || ''}
-          .label=${'Timestamp Entity (optional)'}
-          .includeDomains=${['automation', 'script', 'sensor']}
+          .label=${'Timestamp Entity (Last Triggered)'}
           @value-changed=${(e: CustomEvent) =>
             this._valueChanged('timestamp_entity', e.detail.value)}
           allow-custom-entity
@@ -92,6 +91,9 @@ export class StatusBannerCardEditor extends LitElement {
           <ha-icon icon="mdi:format-list-checks"></ha-icon>
           <span>State Rules</span>
         </div>
+        <p class="section-description">
+          Rules define what becomes the <strong>Title</strong> and <strong>Subtitle</strong> based on state.
+        </p>
 
         <div class="rules-list">
           ${rules.map((rule, index) => this._renderRule(rule, index))}
@@ -134,35 +136,35 @@ export class StatusBannerCardEditor extends LitElement {
       <div class="rule-details">
         <ha-textfield
           .value=${rule.state || ''}
-          .label=${'State Value (exact or /regex/)'}
+          .label=${'Rule Match: State Value (exact or /regex/)'}
           @input=${(e: Event) =>
             this._updateRule(index, 'state', (e.target as HTMLInputElement).value)}
         ></ha-textfield>
 
         <ha-textfield
           .value=${rule.title || ''}
-          .label=${'Title (supports {{ templates }})'}
+          .label=${'Display: Title (supports {{ templates }})'}
           @input=${(e: Event) =>
             this._updateRule(index, 'title', (e.target as HTMLInputElement).value)}
         ></ha-textfield>
 
         <ha-textfield
           .value=${rule.title_font_size || ''}
-          .label=${'Title Font Size (e.g., 1.5rem, 24px)'}
+          .label=${'Display: Title Font Size (e.g., 1.5rem, 24px)'}
           @input=${(e: Event) =>
             this._updateRule(index, 'title_font_size', (e.target as HTMLInputElement).value)}
         ></ha-textfield>
 
         <ha-textfield
           .value=${rule.subtitle || ''}
-          .label=${'Subtitle (supports {{ templates }})'}
+          .label=${'Display: Subtitle (supports {{ templates }})'}
           @input=${(e: Event) =>
             this._updateRule(index, 'subtitle', (e.target as HTMLInputElement).value)}
         ></ha-textfield>
 
         <ha-textfield
           .value=${rule.subtitle_font_size || ''}
-          .label=${'Subtitle Font Size (e.g., 1rem, 16px)'}
+          .label=${'Display: Subtitle Font Size (e.g., 1rem, 16px)'}
           @input=${(e: Event) =>
             this._updateRule(index, 'subtitle_font_size', (e.target as HTMLInputElement).value)}
         ></ha-textfield>
@@ -365,7 +367,7 @@ export class StatusBannerCardEditor extends LitElement {
       <div class="section">
         <div class="section-header">
           <ha-icon icon="mdi:page-layout-body"></ha-icon>
-          <span>Layout Options</span>
+          <span>Layout & Stripes</span>
         </div>
 
         <div class="toggle-row">
@@ -484,6 +486,8 @@ export class StatusBannerCardEditor extends LitElement {
             `
           : nothing}
 
+        <div class="subsection-header">Status Box</div>
+
         <div class="toggle-row">
           <span>Show Status Box</span>
           <ha-switch
@@ -497,7 +501,7 @@ export class StatusBannerCardEditor extends LitElement {
           ? html`
               <ha-textfield
                 .value=${this._config.status_label || 'Status'}
-                .label=${'Status Label (Status/Strategy/Whatever)'}
+                .label=${'Status Label (Prepend)'}
                 @input=${(e: Event) =>
                   this._valueChanged('status_label', (e.target as HTMLInputElement).value)}
               ></ha-textfield>
@@ -505,7 +509,7 @@ export class StatusBannerCardEditor extends LitElement {
               <ha-entity-picker
                 .hass=${this.hass}
                 .value=${this._config.status_entity || ''}
-                .label=${'Status Entity (optional - overrides rule status_text)'}
+                .label=${'Status Entity (Overrides Rules)'}
                 @value-changed=${(e: CustomEvent) =>
                   this._valueChanged('status_entity', e.detail.value)}
                 allow-custom-entity
@@ -515,7 +519,7 @@ export class StatusBannerCardEditor extends LitElement {
                 ? html`
                     <ha-textfield
                       .value=${this._config.status_entity_attribute || ''}
-                      .label=${'Status Entity Attribute (optional - uses state if empty)'}
+                      .label=${'Status Entity Attribute (Optional)'}
                       @input=${(e: Event) =>
                         this._valueChanged('status_entity_attribute', (e.target as HTMLInputElement).value)}
                     ></ha-textfield>
@@ -542,6 +546,8 @@ export class StatusBannerCardEditor extends LitElement {
               </div>
             `
           : nothing}
+
+        <div class="subsection-header">Dimensions</div>
 
         <ha-textfield
           .value=${this._config.header_height || '120px'}

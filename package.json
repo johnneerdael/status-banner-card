@@ -1,6 +1,6 @@
 {
   "name": "status-banner-card",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "description": "A flexible Home Assistant Lovelace card with banner design for displaying entity states",
   "keywords": [
     "home-assistant",
