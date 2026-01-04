@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "v*.*.*"
+  workflow_dispatch:
 
 jobs:
   release:
@@ -18,7 +19,7 @@ jobs:
 
       - name: Update Release Notes
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.JEKYLL_GITHUB_TOKEN }}
         run: |
           # Configure git
           git config --global user.name "github-actions[bot]"
