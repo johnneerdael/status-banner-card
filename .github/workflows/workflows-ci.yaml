@@ -1,5 +1,4 @@
-n---
-name: Workflows CI
+name: "Workflows-CI"
 
 # yamllint disable-line rule:truthy
 on:
