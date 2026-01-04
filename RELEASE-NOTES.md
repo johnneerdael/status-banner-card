@@ -1,4 +1,6 @@
 What's New
+v1.4.3 - Documentation Consolidation - README Cleanup - Removed redundant examples and blueprints, replacing them with direct links to the new dedicated guides. - Blueprint Library - Centralized 20+ use-cases and 18 blueprints in blueprints/README.md. - Layout Variants - Consolidated UI styling examples into a dedicated gallery.
+
 v1.4.2 - Project Rename & Polish
 
     Renamed to Lovelace Multi State Entities Card - Reflecting the flexibility of the card
