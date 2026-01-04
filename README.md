@@ -399,6 +399,7 @@ default:
 ## Advanced vision + memory outline (matches automation)
 
 Use the provided automation (LLM vision with multi-day memory) to update `input_text.bin_status_memory` and rely on schedule sensors. The template sensor below prioritizes memory when the bin is out, then schedule:
+
 <!-- {% raw %} -->
 
 ```YAML
@@ -496,6 +497,7 @@ default:
 ```
 
 <!-- {% endraw %} -->
+
 Notes:
 
 - The automation should write the detected color to `input_text.bin_status_memory` when a bin stays out, and clear it once returned.
