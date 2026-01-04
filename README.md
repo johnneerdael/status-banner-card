@@ -1,3 +1,6 @@
+---
+render_with_liquid: false
+---
 # Lovelace Multi State Entities Card
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=johnneerdael&repository=lovelace-multi-state-entities-card&category=plugin)
