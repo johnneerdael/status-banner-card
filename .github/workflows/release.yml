@@ -13,6 +13,46 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update Release Notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Configure git
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Switch to main branch to update the file
+          git checkout main
+          git pull origin main
+
+          # Generate release notes using GitHub API
+          echo "## ${{ github.ref_name }} ($(date +'%Y-%m-%d'))" > new_notes.md
+          echo "" >> new_notes.md
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/${{ github.repository }}/releases/generate-notes \
+            -f tag_name='${{ github.ref_name }}' \
+            -q .body >> new_notes.md
+          echo "" >> new_notes.md
+
+          # Prepend to RELEASE-NOTES.md
+          if [ -f RELEASE-NOTES.md ]; then
+            cat RELEASE-NOTES.md >> new_notes.md
+          fi
+          mv new_notes.md RELEASE-NOTES.md
+
+          # Commit and push
+          git add RELEASE-NOTES.md
+          git commit -m "docs: update release notes for ${{ github.ref_name }}" || echo "No changes to commit"
+          git push origin main
+
+          # Switch back to the tag for the build/release process
+          git checkout ${{ github.ref_name }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

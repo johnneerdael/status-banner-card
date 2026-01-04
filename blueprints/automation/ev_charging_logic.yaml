@@ -1,0 +1,93 @@
+blueprint:
+  name: "Status Banner: EV Charging Manager"
+  description: >
+    Controls your EV Charger based on the 'EV Dashboard Status' sensor.
+    Automatically starts/stops charging and sends notifications.
+  domain: automation
+  source_url: https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/automation/ev_charging_logic.yaml
+  input:
+    dashboard_sensor:
+      name: EV Dashboard Status
+      description: The template sensor created by the 'Status Banner: EV Smart Status' blueprint.
+      selector:
+        entity:
+          domain: sensor
+    charger_switch:
+      name: Charger Control Switch
+      description: The switch that starts/stops the charging session.
+      selector:
+        entity:
+          domain: switch
+    notify_device:
+      name: Mobile Device
+      description: Where to send status updates.
+      selector:
+        device:
+          integration: mobile_app
+
+trigger:
+  - platform: state
+    entity_id: !input dashboard_sensor
+    to: "CHARGE_NOW"
+    id: "start"
+  - platform: state
+    entity_id: !input dashboard_sensor
+    to: "STOP_CHARGING"
+    id: "stop"
+  - platform: state
+    entity_id: !input dashboard_sensor
+    to: "PLUG_IN"
+    id: "nag"
+
+action:
+  - choose:
+      # START CHARGING
+      - conditions:
+          - condition: trigger
+            id: "start"
+        sequence:
+          - action: switch.turn_on
+            target:
+              entity_id: !input charger_switch
+          - domain: mobile_app
+            type: notify
+            device_id: !input notify_device
+            title: "EV Charging Started"
+            message: "Charging started. {{ state_attr(trigger.entity_id, 'reason') }}"
+            data:
+              push:
+                sound:
+                  name: default
+                  critical: 0
+                  volume: 0.5
+
+      # STOP CHARGING
+      - conditions:
+          - condition: trigger
+            id: "stop"
+        sequence:
+          - action: switch.turn_off
+            target:
+              entity_id: !input charger_switch
+          - domain: mobile_app
+            type: notify
+            device_id: !input notify_device
+            title: "EV Charging Paused"
+            message: "Charging paused. {{ state_attr(trigger.entity_id, 'reason') }}"
+
+      # REMINDER TO PLUG IN
+      - conditions:
+          - condition: trigger
+            id: "nag"
+        sequence:
+          - domain: mobile_app
+            type: notify
+            device_id: !input notify_device
+            title: "⚠️ Plug In Vehicle"
+            message: "Battery is low. Please connect the charger."
+            data:
+              push:
+                sound:
+                  name: default
+                  critical: 1
+                  volume: 1.0

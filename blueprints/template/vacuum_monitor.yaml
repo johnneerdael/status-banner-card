@@ -1,0 +1,63 @@
+blueprint:
+  name: "Status Banner: Robot Vacuum Monitor"
+  description: >
+    Aggregates vacuum state and error attributes into a clear status display.
+
+    States:
+    - ERROR: Stuck, Bin Full, or Error.
+    - CLEANING: Active.
+    - RETURNING: Going to dock.
+    - DOCKED: Charging/Idle.
+  domain: template
+  source_url: https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/vacuum_monitor.yaml
+  input:
+    vacuum_entity:
+      name: Vacuum Entity
+      selector:
+        entity:
+          domain: vacuum
+
+template:
+  - sensor:
+      - name: Vacuum Dashboard Status
+        state: >
+          {# --- INPUTS --- #}
+          {% set vac = !input vacuum_entity %}
+          {% set status = states(vac) %}
+
+          {# --- LOGIC --- #}
+          {% if status == 'error' %}
+            ERROR
+          {% elif status in ['cleaning', 'on'] %}
+            CLEANING
+          {% elif status == 'returning' %}
+            RETURNING
+          {% else %}
+            DOCKED
+          {% endif %}
+
+        attributes:
+          status_text: >
+            {% set vac = !input vacuum_entity %}
+            {% set status = states(vac) %}
+            {% set error = state_attr(vac, 'error') %}
+
+            {% if status == 'error' %}
+              {{ error | default('Vacuum requires attention.') }}
+            {% elif status in ['cleaning', 'on'] %}
+              Cleaning {{ state_attr(vac, 'fan_speed') | default('Standard') }} mode.
+            {% elif status == 'returning' %}
+              Returning to dock.
+            {% else %}
+              Ready for next schedule.
+            {% endif %}
+
+          location: >
+             {{ state_attr(!input vacuum_entity, 'room') | default('Base Station') }}
+
+          icon_color: >
+            {% if this.state == 'ERROR' %}#F44336
+            {% elif this.state == 'CLEANING' %}#2196F3
+            {% elif this.state == 'RETURNING' %}#FF9800
+            {% else %}#4CAF50
+            {% endif %}

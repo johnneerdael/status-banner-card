@@ -1,0 +1,127 @@
+blueprint:
+  name: "Status Banner: EV Smart Status"
+  description: >
+    Aggregates EV Battery, Charger connection, and Energy prices into a single 'Action' status.
+
+    States:
+    - CHARGE_NOW: Plugged in + (Low Price OR Excess Solar OR Critical Battery).
+    - STOP_CHARGING: Plugged in + High Price + Battery has buffer.
+    - PLUG_IN: Home + Low Battery + Disconnected.
+    - IDLE: Disconnected (High Battery) or Fully Charged.
+  domain: template
+  source_url: https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/ev_charging_status.yaml
+  input:
+    car_battery:
+      name: EV Battery Level (%)
+      selector:
+        entity:
+          domain: sensor
+          device_class: battery
+    charger_status:
+      name: Charger Connection Status
+      description: Binary sensor (On = Plugged In) or Sensor (e.g., 'Connected').
+      selector:
+        entity:
+          domain: [binary_sensor, sensor]
+    grid_price:
+      name: Energy Price (Optional)
+      description: Used to determine 'Cheap' charging windows.
+      default: []
+      selector:
+        entity:
+          domain: sensor
+    solar_power:
+      name: Solar Production (Optional)
+      description: Used to trigger 'Charge on Sun'.
+      default: []
+      selector:
+        entity:
+          domain: sensor
+          device_class: power
+
+    # Thresholds
+    min_battery:
+      name: Critical Battery % (Force Charge)
+      default: 20
+      selector:
+        number:
+          min: 0
+          max: 100
+          unit_of_measurement: "%"
+    max_price:
+      name: Max Price Threshold
+      default: 0.25
+      selector:
+        number:
+          min: 0
+          max: 10
+          step: 0.01
+
+template:
+  - sensor:
+      - name: EV Dashboard Status
+        state: >
+          {# --- INPUTS --- #}
+          {% set soc = states(!input car_battery) | float(0) %}
+
+          {% set charger_entity = !input charger_status %}
+          {% set charger_state = states(charger_entity) %}
+          {% set is_plugged = charger_state in ['on', 'Connected', 'Charging', 'Occupied', 'B'] %}
+
+          {% set price_entity = !input grid_price %}
+          {% set price = states(price_entity) | float(0) if price_entity else 0 %}
+          {% set max_p = !input max_price %}
+
+          {% set solar_entity = !input solar_power %}
+          {% set solar = states(solar_entity) | float(0) if solar_entity else 0 %}
+
+          {% set crit = !input min_battery %}
+
+          {# --- LOGIC --- #}
+          {% if not is_plugged and soc < crit %}
+            PLUG_IN
+          {% elif not is_plugged %}
+            IDLE
+          {% elif soc >= 100 %}
+            FULL
+          {% elif soc < crit %}
+            CHARGE_NOW
+          {% elif solar > 2000 %}
+            CHARGE_NOW
+          {% elif price_entity and price < max_p %}
+            CHARGE_NOW
+          {% else %}
+            STOP_CHARGING
+          {% endif %}
+
+        attributes:
+          reason: >
+            {% set soc = states(!input car_battery) | float(0) %}
+            {% set price_entity = !input grid_price %}
+            {% set price = states(price_entity) | float(0) if price_entity else 0 %}
+            {% set max_p = !input max_price %}
+            {% set solar_entity = !input solar_power %}
+            {% set solar = states(solar_entity) | float(0) if solar_entity else 0 %}
+            {% set crit = !input min_battery %}
+
+            {% if this.state == 'PLUG_IN' %}
+              Battery critical ({{ soc }}%) and unplugged.
+            {% elif this.state == 'FULL' %}
+              Battery full.
+            {% elif this.state == 'CHARGE_NOW' %}
+              {% if soc < crit %}Emergency charge (Low Battery).
+              {% elif solar > 2000 %}Excess solar detected ({{ solar | round }} W).
+              {% else %}Price is low ({{ price }}).
+              {% endif %}
+            {% elif this.state == 'STOP_CHARGING' %}
+              Price high ({{ price }}) and battery has buffer.
+            {% else %}
+              Vehicle disconnected.
+            {% endif %}
+
+          icon_color: >
+            {% if this.state == 'PLUG_IN' %}#F44336
+            {% elif this.state == 'CHARGE_NOW' %}#4CAF50
+            {% elif this.state == 'STOP_CHARGING' %}#FF9800
+            {% else %}#9E9E9E
+            {% endif %}
