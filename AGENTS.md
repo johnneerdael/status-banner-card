@@ -17,7 +17,7 @@ This repository contains a custom Home Assistant Lovelace card designed for disp
   - `lovelace-multi-state-entities-card.ts`: Main card component (LitElement). Handles rendering logic and action execution.
   - `editor.ts`: Card configuration editor interface.
   - `rules/matcher.ts`: Logic for matching entity states/attributes against user-defined rules.
-  - `template/parser.ts`: Custom template expression parser supporting `{{ }}` syntax and filters.
+    - `template/parser.ts`: Custom template expression parser supporting `{% raw %}{{ }}{% endraw %}` syntax and filters.
   - `types.ts`: Central TypeScript interfaces and types for configuration and internal data.
   - `constants.ts`: Default configurations and static metadata.
   - `styles.ts`: Main component CSS using Lit's `css` tag.
