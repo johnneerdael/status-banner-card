@@ -29,12 +29,21 @@ export class StatusBannerCardEditor extends LitElement {
       return html``;
     }
 
+    // 1. Entity: Mandatory entity selector
+    // 2. Color Mapping: (No changes)
+    // 3. Layout Options: Accent, Triangle, Timestamp
+    // 4. Global Display: Alignment & Global Colors (NEW)
+    // 5. State Rules: Rules List
+    // 6. Default Display: Existing default editor
+    // 7. Status Box: Toggle, Labels, Opacity (MOVED)
+    // 8. Footer: Last Execution & Button
+
     return html`
       <div class="editor-container">
         ${this._renderEntitySection()} ${this._renderColorMapSection()}
-        ${this._renderLayoutSection()} ${this._renderAlignmentSection()}
-        ${this._renderTextColorsSection()} ${this._renderRulesSection()}
-        ${this._renderDefaultSection()} ${this._renderFooterSection()}
+        ${this._renderLayoutSection()} ${this._renderGlobalDisplaySection()}
+        ${this._renderRulesSection()} ${this._renderDefaultSection()}
+        ${this._renderStatusBoxSection()} ${this._renderFooterSection()}
       </div>
     `;
   }
@@ -48,7 +57,7 @@ export class StatusBannerCardEditor extends LitElement {
       <div class="section">
         <div class="section-header">
           <ha-icon icon="mdi:database"></ha-icon>
-          <span>Entity & Sensors</span>
+          <span>Entity</span>
         </div>
 
         <ha-entity-picker
@@ -58,22 +67,6 @@ export class StatusBannerCardEditor extends LitElement {
           @value-changed=${(e: CustomEvent) => this._valueChanged('entity', e.detail.value)}
           allow-custom-entity
         ></ha-entity-picker>
-
-        <ha-entity-picker
-          .hass=${this.hass}
-          .value=${this._config.timestamp_entity || ''}
-          .label=${'Timestamp Entity (Last Triggered)'}
-          @value-changed=${(e: CustomEvent) =>
-            this._valueChanged('timestamp_entity', e.detail.value)}
-          allow-custom-entity
-        ></ha-entity-picker>
-
-        <ha-textfield
-          .value=${this._config.timestamp_attribute || 'last_triggered'}
-          .label=${'Timestamp Attribute'}
-          @input=${(e: Event) =>
-            this._valueChanged('timestamp_attribute', (e.target as HTMLInputElement).value)}
-        ></ha-textfield>
       </div>
     `;
   }
@@ -314,42 +307,170 @@ export class StatusBannerCardEditor extends LitElement {
 
   private _renderFooterSection(): TemplateResult {
     const buttonAction = this._config.button_actions?.[0];
+    const buttonType = buttonAction?.type || 'service';
+    const lastExecutionAlignments = [
+      { value: 'left', label: 'Left' },
+      { value: 'right', label: 'Right' },
+    ];
+
+    const buttonTypes = [
+      { value: 'service', label: 'Service' },
+      { value: 'toggle', label: 'Toggle' },
+      { value: 'more-info', label: 'More Info' },
+      { value: 'navigate', label: 'Navigate' },
+      { value: 'url', label: 'URL' },
+      { value: 'assist', label: 'Assist' },
+    ];
 
     return html`
       <div class="section">
         <div class="section-header">
-          <ha-icon icon="mdi:gesture-tap-button"></ha-icon>
-          <span>Button Action</span>
+          <ha-icon icon="mdi:page-layout-footer"></ha-icon>
+          <span>Footer & Actions</span>
         </div>
 
-        <ha-textfield
-          .value=${buttonAction?.label || ''}
-          .label=${'Button Label'}
-          @input=${(e: Event) =>
-            this._updateButtonAction('label', (e.target as HTMLInputElement).value)}
-        ></ha-textfield>
+        <div class="toggle-row">
+          <span>Show Footer</span>
+          <ha-switch
+            .checked=${this._config.show_footer !== false}
+            @change=${(e: Event) =>
+              this._valueChanged('show_footer', (e.target as HTMLInputElement).checked)}
+          ></ha-switch>
+        </div>
 
-        <ha-icon-picker
-          .hass=${this.hass}
-          .value=${buttonAction?.icon || ''}
-          .label=${'Button Icon'}
-          @value-changed=${(e: CustomEvent) => this._updateButtonAction('icon', e.detail.value)}
-        ></ha-icon-picker>
+        ${this._config.show_footer !== false
+          ? html`
+              <div class="subsection-header">Last Execution</div>
 
-        <ha-textfield
-          .value=${(buttonAction?.tap_action as any)?.service || ''}
-          .label=${'Service (e.g., input_button.press)'}
-          @input=${(e: Event) =>
-            this._updateButtonTapAction('service', (e.target as HTMLInputElement).value)}
-        ></ha-textfield>
+              <ha-entity-picker
+                .hass=${this.hass}
+                .value=${this._config.timestamp_entity || ''}
+                .label=${'Last Execution Entity (Timestamp)'}
+                @value-changed=${(e: CustomEvent) =>
+                  this._valueChanged('timestamp_entity', e.detail.value)}
+                allow-custom-entity
+              ></ha-entity-picker>
 
-        <ha-entity-picker
-          .hass=${this.hass}
-          .value=${(buttonAction?.tap_action as any)?.target?.entity_id || ''}
-          .label=${'Target Entity'}
-          @value-changed=${(e: CustomEvent) => this._updateButtonTapAction('target', e.detail.value)}
-          allow-custom-entity
-        ></ha-entity-picker>
+              <ha-select
+                .value=${this._config.last_execution_alignment || 'left'}
+                .label=${'Alignment'}
+                @selected=${(e: CustomEvent) =>
+                  this._valueChanged('last_execution_alignment', (e.target as any).value)}
+                @closed=${(e: Event) => e.stopPropagation()}
+              >
+                ${lastExecutionAlignments.map(
+                  (align) => html`
+                    <mwc-list-item .value=${align.value}>${align.label}</mwc-list-item>
+                  `
+                )}
+              </ha-select>
+
+              <div class="subsection-header">Actionable Button</div>
+
+              <ha-textfield
+                .value=${buttonAction?.label || ''}
+                .label=${'Button Label'}
+                @input=${(e: Event) =>
+                  this._updateButtonAction('label', (e.target as HTMLInputElement).value)}
+              ></ha-textfield>
+
+              <ha-icon-picker
+                .hass=${this.hass}
+                .value=${buttonAction?.icon || ''}
+                .label=${'Button Icon'}
+                @value-changed=${(e: CustomEvent) => this._updateButtonAction('icon', e.detail.value)}
+              ></ha-icon-picker>
+
+              <div class="color-input">
+                <label>Button Color (Not Recommended - follows accent)</label>
+                <div class="color-input-row">
+                  <input
+                    type="color"
+                    .value=${buttonAction?.color || '#9E9E9E'}
+                    @input=${(e: Event) =>
+                      this._updateButtonAction('color', (e.target as HTMLInputElement).value)}
+                  />
+                  <ha-textfield
+                    .value=${buttonAction?.color || ''}
+                    .placeholder=${'Default (Accent)'}
+                    @input=${(e: Event) =>
+                      this._updateButtonAction(
+                        'color',
+                        (e.target as HTMLInputElement).value || undefined
+                      )}
+                  ></ha-textfield>
+                  ${buttonAction?.color
+                    ? html`
+                        <ha-icon-button
+                          .path=${'M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z'}
+                          @click=${() => this._updateButtonAction('color', undefined)}
+                        ></ha-icon-button>
+                      `
+                    : nothing}
+                </div>
+              </div>
+
+              <ha-select
+                .value=${buttonType}
+                .label=${'Button Type'}
+                @selected=${(e: CustomEvent) =>
+                  this._updateButtonAction('type', (e.target as any).value)}
+                @closed=${(e: Event) => e.stopPropagation()}
+              >
+                ${buttonTypes.map(
+                  (type) => html`
+                    <mwc-list-item .value=${type.value}>${type.label}</mwc-list-item>
+                  `
+                )}
+              </ha-select>
+
+              ${buttonType === 'service'
+                ? html`
+                    <ha-textfield
+                      .value=${buttonAction?.service || ''}
+                      .label=${'Button Service (e.g. script.run)'}
+                      @input=${(e: Event) =>
+                        this._updateButtonAction('service', (e.target as HTMLInputElement).value)}
+                    ></ha-textfield>
+                  `
+                : nothing}
+              ${buttonType === 'url'
+                ? html`
+                    <ha-textfield
+                      .value=${(buttonAction?.tap_action as any)?.url_path || ''}
+                      .label=${'URL'}
+                      @input=${(e: Event) =>
+                        this._updateButtonTapAction('url_path', (e.target as HTMLInputElement).value)}
+                    ></ha-textfield>
+                  `
+                : nothing}
+              ${buttonType === 'navigate'
+                ? html`
+                    <ha-textfield
+                      .value=${(buttonAction?.tap_action as any)?.navigation_path || ''}
+                      .label=${'Navigation Path'}
+                      @input=${(e: Event) =>
+                        this._updateButtonTapAction(
+                          'navigation_path',
+                          (e.target as HTMLInputElement).value
+                        )}
+                    ></ha-textfield>
+                  `
+                : nothing}
+              ${['service', 'toggle', 'more-info'].includes(buttonType)
+                ? html`
+                    <ha-entity-picker
+                      .hass=${this.hass}
+                      .value=${buttonAction?.entity || ''}
+                      .label=${'Button Entity'}
+                      @value-changed=${(e: CustomEvent) =>
+                        this._updateButtonAction('entity', e.detail.value)}
+                      allow-custom-entity
+                    ></ha-entity-picker>
+                  `
+                : nothing}
+            `
+          : nothing}
       </div>
     `;
   }
@@ -361,7 +482,6 @@ export class StatusBannerCardEditor extends LitElement {
   private _renderLayoutSection(): TemplateResult {
     const accentWidth = this._config.accent_width ?? 60;
     const accentHeight = this._config.accent_height ?? 100;
-    const statusOpacity = this._config.status_opacity ?? 90;
 
     return html`
       <div class="section">
@@ -445,107 +565,41 @@ export class StatusBannerCardEditor extends LitElement {
 
               <div class="subsection-header">Triangle Shape</div>
 
-              <div class="toggle-row">
-                <span>Full Background (No Triangle)</span>
-                <ha-switch
-                  .checked=${this._config.accent_full_background === true}
-                  @change=${(e: Event) =>
-                    this._valueChanged('accent_full_background', (e.target as HTMLInputElement).checked)}
-                ></ha-switch>
-              </div>
+              <ha-select
+                .value=${this._config.accent_start || 'bottom-left'}
+                .label=${'Triangle Edge 1'}
+                @selected=${(e: CustomEvent) =>
+                  this._valueChanged('accent_start', (e.target as any).value)}
+                @closed=${(e: Event) => e.stopPropagation()}
+              >
+                <mwc-list-item value="top-left">Top Left</mwc-list-item>
+                <mwc-list-item value="top-right">Top Right</mwc-list-item>
+                <mwc-list-item value="bottom-left">Bottom Left</mwc-list-item>
+                <mwc-list-item value="bottom-right">Bottom Right</mwc-list-item>
+              </ha-select>
 
-              ${this._config.accent_full_background !== true
-                ? html`
-                    <ha-select
-                      .value=${this._config.accent_start || 'bottom-left'}
-                      .label=${'Triangle Start Corner'}
-                      @selected=${(e: CustomEvent) =>
-                        this._valueChanged('accent_start', (e.target as any).value)}
-                      @closed=${(e: Event) => e.stopPropagation()}
-                    >
-                      <mwc-list-item value="top-left">Top Left</mwc-list-item>
-                      <mwc-list-item value="top-right">Top Right</mwc-list-item>
-                      <mwc-list-item value="bottom-left">Bottom Left</mwc-list-item>
-                      <mwc-list-item value="bottom-right">Bottom Right</mwc-list-item>
-                    </ha-select>
-
-                    <ha-select
-                      .value=${this._config.accent_end || 'top-right'}
-                      .label=${'Triangle End Corner'}
-                      @selected=${(e: CustomEvent) =>
-                        this._valueChanged('accent_end', (e.target as any).value)}
-                      @closed=${(e: Event) => e.stopPropagation()}
-                    >
-                      <mwc-list-item value="top-left">Top Left</mwc-list-item>
-                      <mwc-list-item value="top-right">Top Right</mwc-list-item>
-                      <mwc-list-item value="bottom-left">Bottom Left</mwc-list-item>
-                      <mwc-list-item value="bottom-right">Bottom Right</mwc-list-item>
-                    </ha-select>
-                  `
-                : nothing}
+              <ha-select
+                .value=${this._config.accent_end || 'top-right'}
+                .label=${'Triangle Edge 2'}
+                @selected=${(e: CustomEvent) =>
+                  this._valueChanged('accent_end', (e.target as any).value)}
+                @closed=${(e: Event) => e.stopPropagation()}
+              >
+                <mwc-list-item value="top-left">Top Left</mwc-list-item>
+                <mwc-list-item value="top-right">Top Right</mwc-list-item>
+                <mwc-list-item value="bottom-left">Bottom Left</mwc-list-item>
+                <mwc-list-item value="bottom-right">Bottom Right</mwc-list-item>
+              </ha-select>
             `
           : nothing}
 
-        <div class="subsection-header">Status Box</div>
-
-        <div class="toggle-row">
-          <span>Show Status Box</span>
-          <ha-switch
-            .checked=${this._config.show_status !== false}
-            @change=${(e: Event) =>
-              this._valueChanged('show_status', (e.target as HTMLInputElement).checked)}
-          ></ha-switch>
-        </div>
-
-        ${this._config.show_status !== false
-          ? html`
-              <ha-textfield
-                .value=${this._config.status_label || 'Status'}
-                .label=${'Status Label (Prepend)'}
-                @input=${(e: Event) =>
-                  this._valueChanged('status_label', (e.target as HTMLInputElement).value)}
-              ></ha-textfield>
-
-              <ha-entity-picker
-                .hass=${this.hass}
-                .value=${this._config.status_entity || ''}
-                .label=${'Status Entity (Overrides Rules)'}
-                @value-changed=${(e: CustomEvent) =>
-                  this._valueChanged('status_entity', e.detail.value)}
-                allow-custom-entity
-              ></ha-entity-picker>
-
-              ${this._config.status_entity
-                ? html`
-                    <ha-textfield
-                      .value=${this._config.status_entity_attribute || ''}
-                      .label=${'Status Entity Attribute (Optional)'}
-                      @input=${(e: Event) =>
-                        this._valueChanged('status_entity_attribute', (e.target as HTMLInputElement).value)}
-                    ></ha-textfield>
-                  `
-                : nothing}
-
-              <div class="slider-row">
-                <label>Status Box Opacity: ${statusOpacity}%</label>
-                <div class="slider-container">
-                  <span class="slider-label">0%</span>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    .value=${String(statusOpacity)}
-                    @input=${(e: Event) =>
-                      this._valueChanged(
-                        'status_opacity',
-                        Number((e.target as HTMLInputElement).value)
-                      )}
-                  />
-                  <span class="slider-label">100%</span>
-                </div>
-              </div>
-            `
-          : nothing}
+        <div class="subsection-header">Timestamp Settings</div>
+        <ha-textfield
+          .value=${this._config.timestamp_attribute || 'last_triggered'}
+          .label=${'Timestamp Attribute'}
+          @input=${(e: Event) =>
+            this._valueChanged('timestamp_attribute', (e.target as HTMLInputElement).value)}
+        ></ha-textfield>
 
         <div class="subsection-header">Dimensions</div>
 
@@ -574,37 +628,44 @@ export class StatusBannerCardEditor extends LitElement {
   }
 
   // ─────────────────────────────────────────────────────────────
-  // Alignment Section
+  // Global Display Section (Alignment & Colors)
   // ─────────────────────────────────────────────────────────────
 
-  private _renderAlignmentSection(): TemplateResult {
+  private _renderGlobalDisplaySection(): TemplateResult {
     const alignments = [
       { value: 'left', label: 'Left' },
       { value: 'center', label: 'Center' },
       { value: 'right', label: 'Right' },
     ];
 
-    const positions = [
-      { value: 'top-left', label: 'Top Left' },
-      { value: 'top-right', label: 'Top Right' },
-      { value: 'bottom-left', label: 'Bottom Left' },
-      { value: 'bottom-right', label: 'Bottom Right' },
-    ];
-
     return html`
       <div class="section">
         <div class="section-header">
-          <ha-icon icon="mdi:format-horizontal-align-center"></ha-icon>
-          <span>Alignment & Positioning</span>
+          <ha-icon icon="mdi:format-paint"></ha-icon>
+          <span>Global Display Settings</span>
         </div>
 
-        <div class="subsection-header">Header</div>
+        <div class="subsection-header">Alignment</div>
 
         <ha-select
           .value=${this._config.title_alignment || 'right'}
           .label=${'Title Alignment'}
           @selected=${(e: CustomEvent) =>
             this._valueChanged('title_alignment', (e.target as any).value)}
+          @closed=${(e: Event) => e.stopPropagation()}
+        >
+          ${alignments.map(
+            (align) => html`
+              <mwc-list-item .value=${align.value}>${align.label}</mwc-list-item>
+            `
+          )}
+        </ha-select>
+
+        <ha-select
+          .value=${this._config.subtitle_alignment || this._config.title_alignment || 'right'}
+          .label=${'Subtitle Alignment'}
+          @selected=${(e: CustomEvent) =>
+            this._valueChanged('subtitle_alignment', (e.target as any).value)}
           @closed=${(e: Event) => e.stopPropagation()}
         >
           ${alignments.map(
@@ -628,63 +689,7 @@ export class StatusBannerCardEditor extends LitElement {
           )}
         </ha-select>
 
-        <div class="subsection-header">Footer</div>
-
-        <div class="toggle-row">
-          <span>Show Footer</span>
-          <ha-switch
-            .checked=${this._config.show_footer !== false}
-            @change=${(e: Event) =>
-              this._valueChanged('show_footer', (e.target as HTMLInputElement).checked)}
-          ></ha-switch>
-        </div>
-
-        ${this._config.show_footer !== false
-          ? html`
-              <ha-select
-                .value=${this._config.timestamp_position || 'bottom-left'}
-                .label=${'Timestamp Position'}
-                @selected=${(e: CustomEvent) =>
-                  this._valueChanged('timestamp_position', (e.target as any).value)}
-                @closed=${(e: Event) => e.stopPropagation()}
-              >
-                ${positions.map(
-                  (pos) => html`
-                    <mwc-list-item .value=${pos.value}>${pos.label}</mwc-list-item>
-                  `
-                )}
-              </ha-select>
-
-              <ha-select
-                .value=${this._config.button_position || 'bottom-right'}
-                .label=${'Button Position'}
-                @selected=${(e: CustomEvent) =>
-                  this._valueChanged('button_position', (e.target as any).value)}
-                @closed=${(e: Event) => e.stopPropagation()}
-              >
-                ${positions.map(
-                  (pos) => html`
-                    <mwc-list-item .value=${pos.value}>${pos.label}</mwc-list-item>
-                  `
-                )}
-              </ha-select>
-            `
-          : nothing}
-      </div>
-    `;
-  }
-
-  // ─────────────────────────────────────────────────────────────
-  // Text Colors Section
-  // ─────────────────────────────────────────────────────────────
-
-  private _renderTextColorsSection(): TemplateResult {
-    return html`
-      <div class="section">
-        <div class="section-header">
-          <ha-icon icon="mdi:format-color-text"></ha-icon>
-          <span>Text Colors</span>
-        </div>
+        <div class="subsection-header">Text Colors</div>
         <p class="section-description">Override text colors (useful when text overlaps accent)</p>
 
         <div class="color-input">
@@ -740,32 +745,6 @@ export class StatusBannerCardEditor extends LitElement {
         </div>
 
         <div class="color-input">
-          <label>Timestamp Color</label>
-          <div class="color-input-row">
-            <input
-              type="color"
-              .value=${this._config.timestamp_color || '#212121'}
-              @input=${(e: Event) =>
-                this._valueChanged('timestamp_color', (e.target as HTMLInputElement).value)}
-            />
-            <ha-textfield
-              .value=${this._config.timestamp_color || ''}
-              .placeholder=${'Default (theme)'}
-              @input=${(e: Event) =>
-                this._valueChanged('timestamp_color', (e.target as HTMLInputElement).value || undefined)}
-            ></ha-textfield>
-            ${this._config.timestamp_color
-              ? html`
-                  <ha-icon-button
-                    .path=${'M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z'}
-                    @click=${() => this._valueChanged('timestamp_color', undefined)}
-                  ></ha-icon-button>
-                `
-              : nothing}
-          </div>
-        </div>
-
-        <div class="color-input">
           <label>Icon Color</label>
           <div class="color-input-row">
             <input
@@ -790,6 +769,82 @@ export class StatusBannerCardEditor extends LitElement {
               : nothing}
           </div>
         </div>
+      </div>
+    `;
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // Status Box Section
+  // ─────────────────────────────────────────────────────────────
+
+  private _renderStatusBoxSection(): TemplateResult {
+    const statusOpacity = this._config.status_opacity ?? 90;
+
+    return html`
+      <div class="section">
+        <div class="section-header">
+          <ha-icon icon="mdi:card-text-outline"></ha-icon>
+          <span>Status Box</span>
+        </div>
+
+        <div class="toggle-row">
+          <span>Show Status Box</span>
+          <ha-switch
+            .checked=${this._config.show_status !== false}
+            @change=${(e: Event) =>
+              this._valueChanged('show_status', (e.target as HTMLInputElement).checked)}
+          ></ha-switch>
+        </div>
+
+        ${this._config.show_status !== false
+          ? html`
+              <ha-textfield
+                .value=${this._config.status_label || 'Status'}
+                .label=${'Custom Status Label (Pretext)'}
+                @input=${(e: Event) =>
+                  this._valueChanged('status_label', (e.target as HTMLInputElement).value)}
+              ></ha-textfield>
+
+              <ha-entity-picker
+                .hass=${this.hass}
+                .value=${this._config.status_entity || ''}
+                .label=${'Manual Status Label (Entity Override)'}
+                @value-changed=${(e: CustomEvent) =>
+                  this._valueChanged('status_entity', e.detail.value)}
+                allow-custom-entity
+              ></ha-entity-picker>
+
+              ${this._config.status_entity
+                ? html`
+                    <ha-textfield
+                      .value=${this._config.status_entity_attribute || ''}
+                      .label=${'Status Entity Attribute (Optional)'}
+                      @input=${(e: Event) =>
+                        this._valueChanged('status_entity_attribute', (e.target as HTMLInputElement).value)}
+                    ></ha-textfield>
+                  `
+                : nothing}
+
+              <div class="slider-row">
+                <label>Status Box Opacity: ${statusOpacity}%</label>
+                <div class="slider-container">
+                  <span class="slider-label">0%</span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    .value=${String(statusOpacity)}
+                    @input=${(e: Event) =>
+                      this._valueChanged(
+                        'status_opacity',
+                        Number((e.target as HTMLInputElement).value)
+                      )}
+                  />
+                  <span class="slider-label">100%</span>
+                </div>
+              </div>
+            `
+          : nothing}
       </div>
     `;
   }
@@ -867,7 +922,7 @@ export class StatusBannerCardEditor extends LitElement {
     this._fireConfigChanged({ ...this._config, color_map: colorMap });
   }
 
-  private _updateButtonAction(key: string, value: string): void {
+  private _updateButtonAction(key: string, value: string | undefined): void {
     const buttonActions: ButtonAction[] = [...(this._config.button_actions || [
       { selector: '.update-btn', tap_action: { action: 'none' } as any },
     ])];

@@ -1,5 +1,6 @@
 import { LitElement, html, nothing, PropertyValues, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
+import { ActionConfig } from 'custom-card-helpers';
 import {
   StatusBannerCardConfig,
   DisplayData,
@@ -262,10 +263,12 @@ export class StatusBannerCard extends LitElement {
 
     // Alignment settings
     const titleAlignment: 'left' | 'center' | 'right' = this._config.title_alignment ?? 'right';
+    const subtitleAlignment: 'left' | 'center' | 'right' = this._config.subtitle_alignment ?? titleAlignment;
     const iconAlignment: 'left' | 'center' | 'right' = this._config.icon_alignment ?? 'right';
 
     // Position settings
     const timestampPosition = this._config.timestamp_position ?? 'bottom-left';
+    const timestampAlignment = this._config.last_execution_alignment ?? 'left';
     const buttonPosition = this._config.button_position ?? 'bottom-right';
 
     return html`
@@ -280,9 +283,9 @@ export class StatusBannerCard extends LitElement {
                 style="--accent-color: ${display.color}; --accent-width: ${accentWidthStyle}; --accent-height: ${accentHeightStyle}; --pattern-size: ${patternSize}px; clip-path: ${clipPath}"
               ></div>`
             : nothing}
-          ${this._renderHeader(display, titleAlignment, iconAlignment, titleColor, subtitleColor)}
+          ${this._renderHeader(display, titleAlignment, subtitleAlignment, iconAlignment, titleColor, subtitleColor)}
           ${showStatus && display.statusText ? this._renderStatusBox(display) : nothing}
-          ${showFooter ? this._renderFooterElements(display, timestampPosition, buttonPosition, timestampColor) : nothing}
+          ${showFooter ? this._renderFooterElements(display, timestampPosition, timestampAlignment, buttonPosition, timestampColor) : nothing}
         </div>
       </ha-card>
     `;
@@ -291,6 +294,7 @@ export class StatusBannerCard extends LitElement {
   private _renderHeader(
     display: DisplayData,
     titleAlignment: 'left' | 'center' | 'right',
+    subtitleAlignment: 'left' | 'center' | 'right',
     iconAlignment: 'left' | 'center' | 'right',
     titleColor?: string,
     subtitleColor?: string
@@ -319,7 +323,7 @@ export class StatusBannerCard extends LitElement {
     const iconOrder = iconAlignment === 'left' ? -1 : (iconAlignment === 'center' ? 0 : 1);
     const textOrder = titleAlignment === 'left' ? -1 : (titleAlignment === 'center' ? 0 : 1);
 
-    // Text alignment
+    // Text alignment (Title container)
     const textAlign = titleAlignment;
 
     // Margin: when same side (not center), add gap between icon and text
@@ -344,7 +348,7 @@ export class StatusBannerCard extends LitElement {
             ${display.subtitleFontSize ? `--subtitle-font-size: ${display.subtitleFontSize};` : ''}
           ">
             <div class="title" style="${titleColor ? `color: ${titleColor};` : ''}">${display.title}</div>
-            ${display.subtitle ? html`<div class="subtitle" style="${subtitleColor ? `color: ${subtitleColor};` : ''}">${display.subtitle}</div>` : nothing}
+            ${display.subtitle ? html`<div class="subtitle" style="text-align: ${subtitleAlignment}; ${subtitleColor ? `color: ${subtitleColor};` : ''}">${display.subtitle}</div>` : nothing}
           </div>
 
           <ha-icon
@@ -386,6 +390,7 @@ export class StatusBannerCard extends LitElement {
   private _renderFooterElements(
     display: DisplayData,
     timestampPosition: Position,
+    timestampAlignment: 'left' | 'right',
     buttonPosition: Position,
     timestampColor?: string
   ): TemplateResult {
@@ -405,7 +410,7 @@ export class StatusBannerCard extends LitElement {
     const rightContent: TemplateResult[] = [];
 
     if (timestamp) {
-      const timestampHtml = html`<div class="timestamp" style="${timestampColor ? `color: ${timestampColor};` : ''}">Last Check: ${timestamp}</div>`;
+      const timestampHtml = html`<div class="timestamp" style="text-align: ${timestampAlignment}; width: 100%; ${timestampColor ? `color: ${timestampColor};` : ''}">Last Check: ${timestamp}</div>`;
       if (timestampOnLeft) {
         leftContent.push(timestampHtml);
       } else {
@@ -450,11 +455,19 @@ export class StatusBannerCard extends LitElement {
     };
 
     const label = action.label ? parseTemplate(action.label, context) : 'Update';
+    const buttonType = action.type || 'service';
+
+    // Handle toggle type visual state
+    let isActive = false;
+    if (buttonType === 'toggle' && action.entity) {
+      const stateObj = this.hass.states[action.entity];
+      isActive = stateObj && stateObj.state === 'on';
+    }
 
     return html`
       <button
-        class="action-btn ${action.selector?.replace('.', '') || 'update-btn'}"
-        style="background-color: ${display.color}"
+        class="action-btn ${action.selector?.replace('.', '') || 'update-btn'} ${isActive ? 'active' : ''}"
+        style="background-color: ${action.color || display.color}"
         @click=${(e: Event) => this._handleButtonClick(e, action)}
       >
         ${action.icon ? html`<ha-icon icon="${action.icon}"></ha-icon>` : nothing}
@@ -504,7 +517,57 @@ export class StatusBannerCard extends LitElement {
     }
   }
 
-  private _executeAction(action: StatusBannerCardConfig['tap_action']): void {
+  private _executeAction(
+    action: ActionConfig,
+    buttonAction?: ButtonAction
+  ): void {
+    if (!action && !buttonAction) return;
+
+    // Handle Button Type actions
+    if (buttonAction?.type) {
+      switch (buttonAction.type) {
+        case 'toggle':
+          if (buttonAction.entity) {
+            this.hass.callService('homeassistant', 'toggle', { entity_id: buttonAction.entity });
+          }
+          return;
+
+        case 'more-info':
+          if (buttonAction.entity) {
+            const event = new CustomEvent('hass-more-info', {
+              bubbles: true,
+              composed: true,
+              detail: { entityId: buttonAction.entity },
+            });
+            this.dispatchEvent(event);
+          }
+          return;
+
+        case 'navigate':
+          if (action && 'navigation_path' in action && action.navigation_path) {
+            window.history.pushState(null, '', action.navigation_path);
+            window.dispatchEvent(new Event('location-changed'));
+          }
+          return;
+
+        case 'url':
+          if (action && 'url_path' in action && action.url_path) {
+            window.open(action.url_path, '_blank');
+          }
+          return;
+
+        case 'assist':
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (this.hass as any).callService('assist_satellite', 'start_conversation', {});
+          return;
+
+        case 'service':
+        default:
+          // Fall through to standard handling
+          break;
+      }
+    }
+
     if (!action) return;
 
     switch (action.action) {
@@ -565,7 +628,7 @@ window.customCards.push({
 
 // Log version info
 console.info(
-  `%c  STATUS-BANNER-CARD  %c  v1.4.0  `,
+  `%c  STATUS-BANNER-CARD  %c  v1.4.1  `,
   'color: white; background: #2196F3; font-weight: bold;',
   'color: #2196F3; background: white; font-weight: bold;'
 );

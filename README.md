@@ -8,6 +8,13 @@ A flexible Home Assistant Lovelace card with a distinctive banner design for dis
 
 ## What's New
 
+### v1.4.1 - Button Types & Layout Refinement
+- **New Button Types** - Action button now supports `Service`, `Toggle`, `More Info`, `Navigate`, `URL`, and `Assist` types directly from the editor
+- **Independent Subtitle Alignment** - New `subtitle_alignment` option allows separate control from title
+- **Strict Editor Layout** - Completely reorganized editor to match logical configuration flow: Entity -> Layout -> Display -> Rules -> Status -> Footer
+- **Timestamp Configuration** - Moved timestamp settings to Layout section for better discoverability
+- **Removed "Full Background" Toggle** - Simplified to just "Triangle Edge" controls (set both to same edge for full background)
+
 ### v1.4.0 - User Experience & Alignment Refinement
 - **Improved Alignment Logic** - Fixed "Center" alignment to properly stack and center content without overlapping
 - **Editor UI Overhaul** - Reorganized editor sections to follow a logical flow (Entity -> Color Map -> Layout -> Alignment -> Rules)

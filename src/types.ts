@@ -109,11 +109,17 @@ export interface StatusBannerCardConfig {
   /** Title/subtitle alignment (default: right) */
   title_alignment?: 'left' | 'center' | 'right';
 
+  /** Subtitle alignment (default: inherits title) */
+  subtitle_alignment?: 'left' | 'center' | 'right';
+
   /** Icon alignment, independent of title (default: right) */
   icon_alignment?: 'left' | 'center' | 'right';
 
   /** Timestamp position (default: bottom-left) */
   timestamp_position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+
+  /** Timestamp/Last Execution alignment (default: left) */
+  last_execution_alignment?: 'left' | 'right';
 
   /** Button position (default: bottom-right) */
   button_position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
@@ -193,6 +199,18 @@ export interface ButtonAction {
 
   /** Button icon */
   icon?: string;
+
+  /** Button color override */
+  color?: string;
+
+  /** Button Type (helper for editor) */
+  type?: 'service' | 'toggle' | 'more-info' | 'navigate' | 'url' | 'assist';
+
+  /** Target entity for toggle/more-info */
+  entity?: string;
+
+  /** Service to call (if type is service) */
+  service?: string;
 
   /** Tap action */
   tap_action: ActionConfig;
