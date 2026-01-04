@@ -81,8 +81,8 @@ template:
               {{ state_attr(this.entity_id, 'last_finished') }}
             {% endif %}
           cycle_duration: >
-             {% if trigger.id == 'finish' and states(this.entity_id) == 'Running' %}
-               {{ (as_timestamp(now()) - as_timestamp(states[this.entity_id].last_changed)) | int }}
-             {% else %}
-               {{ state_attr(this.entity_id, 'cycle_duration') }}
-             {% endif %}
+            {% if trigger.id == 'finish' and states(this.entity_id) == 'Running' %}
+              {{ (as_timestamp(now()) - as_timestamp(states[this.entity_id].last_changed)) | int }}
+            {% else %}
+              {{ state_attr(this.entity_id, 'cycle_duration') }}
+            {% endif %}

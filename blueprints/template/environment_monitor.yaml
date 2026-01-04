@@ -65,7 +65,9 @@ template:
 
           {# Pollen Logic #}
           {% set pollen_sensors = expand(!input pollen_sensor) %}
-          {% set pollen_high = pollen_sensors | selectattr('state', 'in', ['High', 'Very High', 'Extreme']) | list | length > 0 %}
+          {% set pollen_high = pollen_sensors
+            | selectattr('state', 'in', ['High', 'Very High', 'Extreme'])
+            | list | length > 0 %}
 
           {# --- DETERMINE STATE --- #}
           {% if max_co2 > 1500 or max_pm > 55 or max_aqi > 150 %}
@@ -85,7 +87,9 @@ template:
             {% set aqi_sensors = expand(!input outdoor_aqi) %}
             {% set max_aqi = aqi_sensors | map(attribute='state') | map('float', 0) | max if aqi_sensors else 0 %}
             {% set pollen_sensors = expand(!input pollen_sensor) %}
-            {% set pollen_high = pollen_sensors | selectattr('state', 'in', ['High', 'Very High', 'Extreme']) | list | length > 0 %}
+            {% set pollen_high = pollen_sensors
+              | selectattr('state', 'in', ['High', 'Very High', 'Extreme'])
+              | list | length > 0 %}
 
             {% if max_co2 > 1500 %}High CO2 ({{ max_co2 }} ppm)
             {% elif max_pm > 55 %}High PM2.5 ({{ max_pm }})

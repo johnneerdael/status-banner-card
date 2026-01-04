@@ -73,7 +73,7 @@ template:
           duration_minutes: >
             {{ states(!input travel_sensor) }}
           route_name: >
-             {{ state_attr(!input travel_sensor, 'route') | default('Primary Route') }}
+            {{ state_attr(!input travel_sensor, 'route') | default('Primary Route') }}
 
           icon_color: >
             {% if this.state == 'HEAVY_TRAFFIC' %}#F44336

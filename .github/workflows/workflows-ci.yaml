@@ -43,4 +43,4 @@ jobs:
         with:
           prettier_options: --write **/*.{json,js,md,yaml}
         env:
-          GITHUB_TOKEN: ${{ env.JEKYLL_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.JEKYLL_GITHUB_TOKEN }}

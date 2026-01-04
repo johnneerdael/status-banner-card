@@ -8,22 +8,22 @@ A flexible Home Assistant Lovelace card with a distinctive banner design for dis
 
 ## Features
 
-* **Distinctive Banner Design** - Angled color accent with optional diagonal stripe pattern
-* **Fully Configurable** - Rule-based state-to-display mapping
-* **Template Support** - Use `{{ state }}`, `{{ attr.name }}`, filters, and more
-* **Typography Control** - Per-rule font size customization for title/subtitle
-* **Accent Customization** - Adjustable width, height, and stripe size (spans full card)
-* **Action Support** - Tap actions, button actions, service calls
-* **Color Mapping** - Define color palettes for dynamic theming
-* **Responsive** - Works on all screen sizes
-* **Theme Support** - Respects Home Assistant themes
-* **Visual Editor** - Full GUI configuration with sliders and controls
+- **Distinctive Banner Design** - Angled color accent with optional diagonal stripe pattern
+- **Fully Configurable** - Rule-based state-to-display mapping
+- **Template Support** - Use `{{ state }}`, `{{ attr.name }}`, filters, and more
+- **Typography Control** - Per-rule font size customization for title/subtitle
+- **Accent Customization** - Adjustable width, height, and stripe size (spans full card)
+- **Action Support** - Tap actions, button actions, service calls
+- **Color Mapping** - Define color palettes for dynamic theming
+- **Responsive** - Works on all screen sizes
+- **Theme Support** - Respects Home Assistant themes
+- **Visual Editor** - Full GUI configuration with sliders and controls
 
 ## Examples
 
 ![1.00](https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/examples/ev-charging.png?raw=true)
 
-* [EV Charging Blueprint](https://gist.githubusercontent.com/johnneerdael/a71b316da3ece86165fe3ae4a9668023/raw/d06c38c4ce01cc7582e6c29174533ec96ccd4ac6/ev-charging-001.yaml), Addons used: Lynk\&Co, Zonneplan, and PirateWeather, Camera Integration and LLM Vision + AI Task
+- [EV Charging Blueprint](https://gist.githubusercontent.com/johnneerdael/a71b316da3ece86165fe3ae4a9668023/raw/d06c38c4ce01cc7582e6c29174533ec96ccd4ac6/ev-charging-001.yaml), Addons used: Lynk\&Co, Zonneplan, and PirateWeather, Camera Integration and LLM Vision + AI Task
 
 ## Blueprints
 
@@ -33,6 +33,7 @@ This repository includes ready-to-use Home Assistant blueprints that complement 
 
 **1. Dashboard Sensor (Template)**
 Creates the unified `sensor.garbage_dashboard_status` used by the card.
+
 - **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/garbage_dashboard_sensor.yaml)
 - **Features:** Aggregates schedule sensors and AI vision memory into a single state (`PUT_OUT`, `BRING_IN`, `IDLE`).
 
@@ -40,6 +41,7 @@ Creates the unified `sensor.garbage_dashboard_status` used by the card.
 
 **2. Vision Verification (Automation)**
 The "Brain" behind the system.
+
 - **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/automation/garbage_vision_verification.yaml)
 - **Features:** Uses LLM Vision to count bins, updates the memory helper, and sends mobile notifications.
 
@@ -47,10 +49,12 @@ The "Brain" behind the system.
 
 **1. Appliance Status Sensor (Template)**
 Smart logic for washers, dryers, and dishwashers.
+
 - **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/appliance_status_sensor.yaml)
 - **Features:** Translates power usage (W) into states: `Running`, `Finished` (cycle complete), and `Idle`. Handles "finish delays" to avoid false positives during pauses.
 
 **2. Cycle Notifications (Automation)**
+
 - **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/automation/appliance_notification.yaml)
 - **Features:** Triggers when the sensor switches to `Finished`. Sends a mobile alert.
 
@@ -58,10 +62,12 @@ Smart logic for washers, dryers, and dishwashers.
 
 **1. Tracker Sensor (Template)**
 Visualizes adherence to a daily schedule.
+
 - **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/medication_tracker_sensor.yaml)
 - **Features:** Tracks `TAKEN`, `DUE`, and `MISSED` states based on a schedule time and an input button.
 
 **2. Reminder System (Automation)**
+
 - **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/automation/medication_reminder.yaml)
 - **Features:** Sends actionable notifications (iOS/Android) allowing you to log the dose directly from the notification. "Nags" every 30 minutes if missed.
 
@@ -69,6 +75,7 @@ Visualizes adherence to a daily schedule.
 
 **1. Security Dashboard Status (Template)**
 Aggregates perimeter sensors and weather data.
+
 - **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/security_monitor.yaml)
 - **Features:**
   - `CRITICAL_RAIN`: Alerts if windows are open while it's raining.
@@ -79,6 +86,7 @@ Aggregates perimeter sensors and weather data.
 
 **1. Environment Dashboard Status (Template)**
 Aggregates Indoor Air Quality (CO2, PM2.5) and Outdoor data (AQI, Pollen).
+
 - **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/environment_monitor.yaml)
 - **Features:**
   - `DANGER`: Hazardous levels (>1500ppm CO2, >150 AQI).
@@ -89,6 +97,7 @@ Aggregates Indoor Air Quality (CO2, PM2.5) and Outdoor data (AQI, Pollen).
 
 **1. Home Energy Dashboard (Template)**
 Visualizes Grid and Battery status for solar setups.
+
 - **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/battery_status.yaml)
 - **Features:**
   - `GRID_OUTAGE`: Running on battery backup.
@@ -99,6 +108,7 @@ Visualizes Grid and Battery status for solar setups.
 
 **1. Commute Dashboard Status (Template)**
 Tracks travel time delay to a destination.
+
 - **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/commute_monitor.yaml)
 - **Features:**
   - `HEAVY_TRAFFIC`: Significant delays (>15m).
@@ -120,8 +130,8 @@ Tracks travel time delay to a destination.
 1. Download `lovelace-multi-state-entities-card.js` from the [latest release](https://github.com/johnneerdael/lovelace-multi-state-entities-card/releases)
 2. Copy to `/config/www/lovelace-multi-state-entities-card.js`
 3. Add resource in Home Assistant:
-   * Go to Settings → Dashboards → Resources
-   * Add `/local/lovelace-multi-state-entities-card.js` as JavaScript Module
+   - Go to Settings → Dashboards → Resources
+   - Add `/local/lovelace-multi-state-entities-card.js` as JavaScript Module
 
 ## Quick Start
 
@@ -164,10 +174,10 @@ color_map:
 
 | Option      | Type   | Required | Default | Description                         |
 | ----------- | ------ | -------- | ------- | ----------------------------------- |
-| `entity`    | string | ✅        | -       | Primary entity ID                   |
-| `rules`     | array  | ❌        | `[]`    | State-to-display rules              |
-| `default`   | object | ❌        | -       | Default display when no rules match |
-| `color_map` | object | ❌        | -       | Named color mappings                |
+| `entity`    | string | ✅       | -       | Primary entity ID                   |
+| `rules`     | array  | ❌       | `[]`    | State-to-display rules              |
+| `default`   | object | ❌       | -       | Default display when no rules match |
+| `color_map` | object | ❌       | -       | Named color mappings                |
 
 ### Rule Configuration
 
@@ -187,35 +197,35 @@ Each rule in the `rules` array can have:
 
 ### Layout Options
 
-| Option           | Type    | Default | Description                                         |
-| ---------------- | ------- | ------- | --------------------------------------------------- |
-| `show_accent`    | boolean | `true`  | Show the diagonal color accent                      |
-| `show_pattern`   | boolean | `true`  | Show diagonal stripe pattern                        |
-| `pattern_size`   | number  | `20`    | Stripe width in pixels                              |
-| `accent_width`   | number  | `60`    | Accent triangle width (0-100% of card width)        |
-| `accent_height`  | number  | `100`   | Accent triangle height (0-150% of full card)        |
-| `accent_start`   | string  | `bottom-left` | Triangle start corner (top-left, top-right, bottom-left, bottom-right) |
-| `accent_end`     | string  | `top-right` | Triangle end corner (top-left, top-right, bottom-left, bottom-right) |
-| `accent_full_background` | boolean | `false` | Fill entire card with accent color (no triangle) |
-| `show_status`    | boolean | `true`  | Show status box                                     |
-| `status_opacity` | number  | `90`    | Status box background opacity (0-100%)              |
-| `status_label`   | string  | `Status`| Label shown before status text                      |
-| `show_footer`    | boolean | `true`  | Show footer with timestamp/button                   |
-| `header_height`  | string  | `120px` | Header section height                               |
-| `icon_size`      | string  | `54px`  | Main icon size                                      |
-| `border_radius`  | string  | `16px`  | Card corner radius                                  |
+| Option                   | Type    | Default       | Description                                                            |
+| ------------------------ | ------- | ------------- | ---------------------------------------------------------------------- |
+| `show_accent`            | boolean | `true`        | Show the diagonal color accent                                         |
+| `show_pattern`           | boolean | `true`        | Show diagonal stripe pattern                                           |
+| `pattern_size`           | number  | `20`          | Stripe width in pixels                                                 |
+| `accent_width`           | number  | `60`          | Accent triangle width (0-100% of card width)                           |
+| `accent_height`          | number  | `100`         | Accent triangle height (0-150% of full card)                           |
+| `accent_start`           | string  | `bottom-left` | Triangle start corner (top-left, top-right, bottom-left, bottom-right) |
+| `accent_end`             | string  | `top-right`   | Triangle end corner (top-left, top-right, bottom-left, bottom-right)   |
+| `accent_full_background` | boolean | `false`       | Fill entire card with accent color (no triangle)                       |
+| `show_status`            | boolean | `true`        | Show status box                                                        |
+| `status_opacity`         | number  | `90`          | Status box background opacity (0-100%)                                 |
+| `status_label`           | string  | `Status`      | Label shown before status text                                         |
+| `show_footer`            | boolean | `true`        | Show footer with timestamp/button                                      |
+| `header_height`          | string  | `120px`       | Header section height                                                  |
+| `icon_size`              | string  | `54px`        | Main icon size                                                         |
+| `border_radius`          | string  | `16px`        | Card corner radius                                                     |
 
 ### Alignment & Positioning Options
 
-| Option              | Type   | Default        | Description                                      |
-| ------------------- | ------ | -------------- | ------------------------------------------------ |
-| `title_alignment`   | string | `right`        | Title/subtitle alignment (left, right)           |
-| `icon_alignment`    | string | `right`        | Icon alignment, independent of title (left, right) |
-| `timestamp_position`| string | `bottom-left`  | Timestamp position (top-left, top-right, bottom-left, bottom-right) |
-| `button_position`   | string | `bottom-right` | Button position (top-left, top-right, bottom-left, bottom-right) |
-| `title_color`       | string | -              | Title text color override (CSS color)            |
-| `subtitle_color`    | string | -              | Subtitle text color override (CSS color)         |
-| `timestamp_color`   | string | -              | Timestamp text color override (CSS color)        |
+| Option               | Type   | Default        | Description                                                         |
+| -------------------- | ------ | -------------- | ------------------------------------------------------------------- |
+| `title_alignment`    | string | `right`        | Title/subtitle alignment (left, right)                              |
+| `icon_alignment`     | string | `right`        | Icon alignment, independent of title (left, right)                  |
+| `timestamp_position` | string | `bottom-left`  | Timestamp position (top-left, top-right, bottom-left, bottom-right) |
+| `button_position`    | string | `bottom-right` | Button position (top-left, top-right, bottom-left, bottom-right)    |
+| `title_color`        | string | -              | Title text color override (CSS color)                               |
+| `subtitle_color`     | string | -              | Subtitle text color override (CSS color)                            |
+| `timestamp_color`    | string | -              | Timestamp text color override (CSS color)                           |
 
 ### Footer Options
 
@@ -268,12 +278,12 @@ button_actions:
 
 ## Entity & Template Sensor Setup
 
-* **Recommended state values:** `PUT_OUT`, `BRING_IN`, `IDLE` (or any domain-specific states you map in `rules`).
-* **Recommended attributes:**
-  * `target_bin`: short key for the color/type (e.g., `blue`, `green`, `purple`, `black`).
-  * `friendly_name_text`: display-friendly name (e.g., "Paper", "Compost").
-  * Optional: `status_reason`, `next_collection`, `source` (e.g., `schedule`, `vision`, `manual`).
-* **Color mapping:** Define `color_map` in the card config and refer to it with `{{ attr.target_bin \| color_map }}` inside `rules`.
+- **Recommended state values:** `PUT_OUT`, `BRING_IN`, `IDLE` (or any domain-specific states you map in `rules`).
+- **Recommended attributes:**
+  - `target_bin`: short key for the color/type (e.g., `blue`, `green`, `purple`, `black`).
+  - `friendly_name_text`: display-friendly name (e.g., "Paper", "Compost").
+  - Optional: `status_reason`, `next_collection`, `source` (e.g., `schedule`, `vision`, `manual`).
+- **Color mapping:** Define `color_map` in the card config and refer to it with `{{ attr.target_bin \| color_map }}` inside `rules`.
 
 ### Color mapping (card config)
 
@@ -462,10 +472,10 @@ default:
 
 Notes:
 
-* The automation should write the detected color to `input_text.bin_status_memory` when a bin stays out, and clear it once returned.
-* The LLM vision step counts bins by color; keep color keys aligned with `color_map` and the automation’s mapping.
-* Floodlight on/off and multi-camera shots improve detection quality.
-* Use `mode: parallel` with a `max` guard (as in the provided automation) to allow manual tests without blocking scheduled runs.
+- The automation should write the detected color to `input_text.bin_status_memory` when a bin stays out, and clear it once returned.
+- The LLM vision step counts bins by color; keep color keys aligned with `color_map` and the automation’s mapping.
+- Floodlight on/off and multi-camera shots improve detection quality.
+- Use `mode: parallel` with a `max` guard (as in the provided automation) to allow manual tests without blocking scheduled runs.
 
 ## Examples
 
@@ -648,147 +658,137 @@ This card excels at displaying "Call to Action" information—situations where t
 
 ### 🏠 Home Maintenance & Chores
 
-* **Washer/Dryer Status**
+- **Washer/Dryer Status**
+  - **State:** `Running` / `Finished` / `Idle`
+  - **Banner:** "LAUNDRY COMPLETE" (Green) vs "WASHING" (Blue)
+  - **Subtitle:** "Cycle finished 10m ago" or "Time remaining: 15m"
+  - **Status Text:** "Please move clothes to dryer."
 
-  * **State:** `Running` / `Finished` / `Idle`
-  * **Banner:** "LAUNDRY COMPLETE" (Green) vs "WASHING" (Blue)
-  * **Subtitle:** "Cycle finished 10m ago" or "Time remaining: 15m"
-  * **Status Text:** "Please move clothes to dryer."
+* **Dishwasher Cycle**
+  - **State:** `Clean` / `Dirty` / `Running`
+  - **Banner:** "DISHES CLEAN" (Green) vs "RUNNING" (Blue)
+  - **Subtitle:** "Ready to empty"
+  - **Status Text:** "Cycle finished at 19:30."
 
-- **Dishwasher Cycle**
+* **HVAC Filter Replacement**
+  - **State:** `OK` / `Replace Soon` / `Overdue`
+  - **Banner:** "FILTER REPLACE" (Red) vs "AIR SYSTEM OK" (Green)
+  - **Subtitle:** "Runtime: 300 hours"
+  - **Status Text:** "Airflow restriction detected. Order generic size 20x20x1."
 
-  * **State:** `Clean` / `Dirty` / `Running`
-  * **Banner:** "DISHES CLEAN" (Green) vs "RUNNING" (Blue)
-  * **Subtitle:** "Ready to empty"
-  * **Status Text:** "Cycle finished at 19:30."
-- **HVAC Filter Replacement**
-
-  * **State:** `OK` / `Replace Soon` / `Overdue`
-  * **Banner:** "FILTER REPLACE" (Red) vs "AIR SYSTEM OK" (Green)
-  * **Subtitle:** "Runtime: 300 hours"
-  * **Status Text:** "Airflow restriction detected. Order generic size 20x20x1."
-- **Robotic Vacuum**
-
-  * **State:** `Docked` / `Cleaning` / `Stuck` / `Bin Full`
-  * **Banner:** "ROBOROCK STUCK" (Red) or "CLEANING" (Blue)
-  * **Subtitle:** "Location: Living Room"
-  * **Status Text:** "Main brush entangled" or "Returning to dock to empty bin."
+* **Robotic Vacuum**
+  - **State:** `Docked` / `Cleaning` / `Stuck` / `Bin Full`
+  - **Banner:** "ROBOROCK STUCK" (Red) or "CLEANING" (Blue)
+  - **Subtitle:** "Location: Living Room"
+  - **Status Text:** "Main brush entangled" or "Returning to dock to empty bin."
 
 ### 🛡️ Security & Safety
 
-* **Perimeter/Window Monitor**
+- **Perimeter/Window Monitor**
+  - **State:** `Secure` / `Open` / `Raining & Open`
+  * **Banner:** "CLOSE WINDOWS" (Red) vs "HOUSE SECURE" (Green)
+  * **Subtitle:** "Rain detected"
+  * **Status Text:** "Master Bedroom window is currently open while it is raining."
 
-  * **State:** `Secure` / `Open` / `Raining & Open`
+* **Garage Door Monitor**
+  - **State:** `Closed` / `Open < 10m` / `Left Open`
+  - **Banner:** "GARAGE LEFT OPEN" (Red/Stripe)
+  - **Subtitle:** "Open for 45 minutes"
+  - **Status Text:** "No motion detected in garage. Tap to close."
 
-  - **Banner:** "CLOSE WINDOWS" (Red) vs "HOUSE SECURE" (Green)
-  - **Subtitle:** "Rain detected"
-  - **Status Text:** "Master Bedroom window is currently open while it is raining."
+* **Smart Lock / Guest Access**
+  - **State:** `Locked` / `Unlocked` / `Jammed`
+  - **Banner:** "FRONT DOOR UNLOCKED" (Orange)
+  - **Subtitle:** "Auto-lock disabled"
+  - **Status Text:** "Unlocked by 'Cleaner Code' at 10:00 AM."
 
-- **Garage Door Monitor**
-
-  * **State:** `Closed` / `Open < 10m` / `Left Open`
-  * **Banner:** "GARAGE LEFT OPEN" (Red/Stripe)
-  * **Subtitle:** "Open for 45 minutes"
-  * **Status Text:** "No motion detected in garage. Tap to close."
-- **Smart Lock / Guest Access**
-
-  * **State:** `Locked` / `Unlocked` / `Jammed`
-  * **Banner:** "FRONT DOOR UNLOCKED" (Orange)
-  * **Subtitle:** "Auto-lock disabled"
-  * **Status Text:** "Unlocked by 'Cleaner Code' at 10:00 AM."
-- **Leak Detection System**
-
-  * **State:** `Dry` / `Leak Detected`
-  * **Banner:** "WATER LEAK DETECTED" (Red/Stripe)
-  * **Subtitle:** "Location: Basement"
-  * **Status Text:** "Main water valve has been shut off automatically."
+* **Leak Detection System**
+  - **State:** `Dry` / `Leak Detected`
+  - **Banner:** "WATER LEAK DETECTED" (Red/Stripe)
+  - **Subtitle:** "Location: Basement"
+  - **Status Text:** "Main water valve has been shut off automatically."
 
 ### 🌿 Environment & Health
 
-* **Air Quality (CO2/PM2.5)**
+- **Air Quality (CO2/PM2.5)**
+  - **State:** `Good` / `Moderate` / `Unhealthy`
+  - **Banner:** "AIR QUALITY POOR" (Purple)
+  - **Subtitle:** "CO2: 1200ppm"
+  - **Status Text:** "Ventilation required. Open a window or boost HVAC fan."
 
-  * **State:** `Good` / `Moderate` / `Unhealthy`
-  * **Banner:** "AIR QUALITY POOR" (Purple)
-  * **Subtitle:** "CO2: 1200ppm"
-  * **Status Text:** "Ventilation required. Open a window or boost HVAC fan."
+* **Plant Care (Aggregated)**
+  - **State:** `Thriving` / `Thirsty` / `Fertilize`
+  - **Banner:** "WATER PLANTS" (Blue)
+  - **Subtitle:** "3 Plants Critical"
+  - **Status Text:** "Peace Lily and Monstera moisture levels below 15%."
 
-- **Plant Care (Aggregated)**
-
-  * **State:** `Thriving` / `Thirsty` / `Fertilize`
-  * **Banner:** "WATER PLANTS" (Blue)
-  * **Subtitle:** "3 Plants Critical"
-  * **Status Text:** "Peace Lily and Monstera moisture levels below 15%."
-- **Pollen/Allergy Forecast**
-
-  * **State:** `Low` / `High` / `Extreme`
-  * **Banner:** "HIGH POLLEN ALERT" (Orange)
-  * **Subtitle:** "Tree Pollen: High"
-  * **Status Text:** "Keep windows closed today. Air purifier set to High."
+* **Pollen/Allergy Forecast**
+  - **State:** `Low` / `High` / `Extreme`
+  - **Banner:** "HIGH POLLEN ALERT" (Orange)
+  - **Subtitle:** "Tree Pollen: High"
+  - **Status Text:** "Keep windows closed today. Air purifier set to High."
 
 ### ⚡ Energy & Network
 
-* **Grid Power Status (Solar)**
+- **Grid Power Status (Solar)**
+  - **State:** `Importing` / `Exporting` / `Peak Rate`
+  - **Banner:** "FREE ENERGY" (Green) vs "PEAK RATE" (Red)
+  - **Subtitle:** "Solar Export: 3.2kW"
+  - **Status Text:** "Great time to run the dishwasher or charge the car."
 
-  * **State:** `Importing` / `Exporting` / `Peak Rate`
-  * **Banner:** "FREE ENERGY" (Green) vs "PEAK RATE" (Red)
-  * **Subtitle:** "Solar Export: 3.2kW"
-  * **Status Text:** "Great time to run the dishwasher or charge the car."
+* **Home Battery Backup**
+  - **State:** `Charging` / `Discharging` / `Grid Outage`
+  - **Banner:** "RUNNING ON BATTERY" (Orange/Stripe)
+  - **Subtitle:** "Grid Power Lost"
+  - **Status Text:** "Est. runtime: 4 hours. Heavy loads (AC) disabled."
 
-- **Home Battery Backup**
+* **Network/Server Health**
+  - **State:** `Online` / `Offline` / `Degraded`
+  - **Banner:** "INTERNET DOWN" (Red)
+  - **Subtitle:** "WAN IP Unreachable"
+  - **Status Text:** "UDM Pro has been offline for 5 minutes. Attempting reboot.
 
-  * **State:** `Charging` / `Discharging` / `Grid Outage`
-  * **Banner:** "RUNNING ON BATTERY" (Orange/Stripe)
-  * **Subtitle:** "Grid Power Lost"
-  * **Status Text:** "Est. runtime: 4 hours. Heavy loads (AC) disabled."
-- **Network/Server Health**
-
-  * **State:** `Online` / `Offline` / `Degraded`
-  * **Banner:** "INTERNET DOWN" (Red)
-  * **Subtitle:** "WAN IP Unreachable"
-  * **Status Text:** "UDM Pro has been offline for 5 minutes. Attempting reboot.
-- 3D Printer Status
-
-  * **State:** `Printing` / `Finished` / `Error`
-  * **Banner:** "PRINT COMPLETE" (Green)
-  * **Subtitle:** "File: Bracket\_v2.gcode"
-  * **Status Text:** "Bed cooled to 30°C. Safe to remove object."
+* 3D Printer Status
+  - **State:** `Printing` / `Finished` / `Error`
+  - **Banner:** "PRINT COMPLETE" (Green)
+  - **Subtitle:** "File: Bracket_v2.gcode"
+  - **Status Text:** "Bed cooled to 30°C. Safe to remove object."
 
 ### 👨‍👩‍👧 Family & Lifestyle
 
-* **Commute Traffic**
+- **Commute Traffic**
+  - **State:** `Clear` / `Moderate` / `Heavy`
+  - **Banner:** "HEAVY TRAFFIC" (Red)
+  - **Subtitle:** "+25 mins delay"
+  - **Status Text:** "Accident on I-95. Suggest taking alternate route via Highway 1."
 
-  * **State:** `Clear` / `Moderate` / `Heavy`
-  * **Banner:** "HEAVY TRAFFIC" (Red)
-  * **Subtitle:** "+25 mins delay"
-  * **Status Text:** "Accident on I-95. Suggest taking alternate route via Highway 1."
-* **Mail/Package Delivery**
+- **Mail/Package Delivery**
+  - **State:** `Empty` / `Mail Arrived` / `Package Retrieved`
+  - **Banner:** "YOU'VE GOT MAIL" (Yellow)
+  - **Subtitle:** "Vibration detected"
+  - **Status Text:** "Mailbox opened at 14:05. Not yet retrieved."
 
-  * **State:** `Empty` / `Mail Arrived` / `Package Retrieved`
-  * **Banner:** "YOU'VE GOT MAIL" (Yellow)
-  * **Subtitle:** "Vibration detected"
-  * **Status Text:** "Mailbox opened at 14:05. Not yet retrieved."
-* **Family Presence / House Mode**
+- **Family Presence / House Mode**
+  - **State:** `Home` / `Away` / `Vacation` / `Guest`
+  - **Banner:** "GUEST MODE ACTIVE" (Purple)
+  - **Subtitle:** "Automations Paused"
+  - **Status Text:** "Lighting motion sensors disabled. Alarm auto-arm disabled."
 
-  * **State:** `Home` / `Away` / `Vacation` / `Guest`
-  * **Banner:** "GUEST MODE ACTIVE" (Purple)
-  * **Subtitle:** "Automations Paused"
-  * **Status Text:** "Lighting motion sensors disabled. Alarm auto-arm disabled."
-* **Medication/Vitamin Reminder**
+- **Medication/Vitamin Reminder**
+  - **State:** `Taken` / `Due` / `Missed`
+  - **Banner:** "TAKE MEDICATION" (Red)
+  - **Subtitle:** "Morning Dose"
+  - **Status Text:** "Button last pressed yesterday. Please acknowledge."
 
-  * **State:** `Taken` / `Due` / `Missed`
-  * **Banner:** "TAKE MEDICATION" (Red)
-  * **Subtitle:** "Morning Dose"
-  * **Status Text:** "Button last pressed yesterday. Please acknowledge."
-* **Groceries / Shopping List**
-
-  * **State:** `Empty` / `Items Pending`
-  * **Banner:** "SHOPPING NEEDED" (Blue)
-  * **Subtitle:** "5 items on list"
-  * **Status Text:** "Milk, Eggs, Bread. Tap to view full Todoist list."
+- **Groceries / Shopping List**
+  - **State:** `Empty` / `Items Pending`
+  - **Banner:** "SHOPPING NEEDED" (Blue)
+  - **Subtitle:** "5 items on list"
+  - **Status Text:** "Milk, Eggs, Bread. Tap to view full Todoist list."
 
 #### Tip for Implementation
 
-For many of these, you will want to create a **Template Sensor** (like we did for the garbage bin in the example) to aggregate logic. For example, the **"Perimeter Monitor"** sensor would look at *all* windows and the weather state to determine if the state is `SECURE`, `OPEN`, or `CRITICAL_RAIN`.
+For many of these, you will want to create a **Template Sensor** (like we did for the garbage bin in the example) to aggregate logic. For example, the **"Perimeter Monitor"** sensor would look at _all_ windows and the weather state to determine if the state is `SECURE`, `OPEN`, or `CRITICAL_RAIN`.
 
 ## Development
 

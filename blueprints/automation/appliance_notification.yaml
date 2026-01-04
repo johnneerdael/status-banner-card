@@ -1,3 +1,4 @@
+---
 blueprint:
   name: "Status Banner: Appliance Notifications"
   description: >
@@ -8,13 +9,13 @@ blueprint:
   input:
     status_sensor:
       name: Appliance Status Sensor
-      description: The template sensor created by the 'Status Banner: Appliance Monitor' blueprint.
+      description: "The template sensor created by the 'Status Banner: Appliance Monitor' blueprint."
       selector:
         entity:
           domain: sensor
     notify_device:
       name: Mobile Device
-      description: Where to send the 'Cycle Complete' notification.
+      description: "Where to send the 'Cycle Complete' notification."
       selector:
         device:
           integration: mobile_app

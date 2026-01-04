@@ -1,6 +1,12 @@
-import { StateRule, DisplayConfig, DisplayData, TemplateContext, HomeAssistantFixed } from '../types';
-import { parseTemplate } from '../template/parser';
-import { FALLBACK_DISPLAY, ERROR_DISPLAY } from '../constants';
+import {
+  StateRule,
+  DisplayConfig,
+  DisplayData,
+  TemplateContext,
+  HomeAssistantFixed,
+} from "../types";
+import { parseTemplate } from "../template/parser";
+import { FALLBACK_DISPLAY, ERROR_DISPLAY } from "../constants";
 
 /**
  * Match rules against entity state and return the first matching rule
@@ -8,7 +14,7 @@ import { FALLBACK_DISPLAY, ERROR_DISPLAY } from '../constants';
 export function matchRule(
   state: string,
   attributes: Record<string, unknown>,
-  rules: StateRule[]
+  rules: StateRule[],
 ): StateRule | null {
   for (const rule of rules) {
     if (ruleMatches(rule, state, attributes)) {
@@ -24,18 +30,19 @@ export function matchRule(
 function ruleMatches(
   rule: StateRule,
   state: string,
-  attributes: Record<string, unknown>
+  attributes: Record<string, unknown>,
 ): boolean {
   // Check state condition
   if (rule.state !== undefined) {
-    if (rule.state.startsWith('/') && rule.state.endsWith('/')) {
+    if (rule.state.startsWith("/") && rule.state.endsWith("/")) {
       // Regex pattern
       const pattern = new RegExp(rule.state.slice(1, -1));
       if (!pattern.test(state)) return false;
     } else {
       // Exact match (case-insensitive option with ~ prefix)
-      if (rule.state.startsWith('~')) {
-        if (rule.state.slice(1).toLowerCase() !== state.toLowerCase()) return false;
+      if (rule.state.startsWith("~")) {
+        if (rule.state.slice(1).toLowerCase() !== state.toLowerCase())
+          return false;
       } else {
         if (rule.state !== state) return false;
       }
@@ -44,8 +51,11 @@ function ruleMatches(
 
   // Check attribute condition
   if (rule.attribute) {
-    const attrValue = String(attributes[rule.attribute.name] ?? '');
-    if (rule.attribute.value.startsWith('/') && rule.attribute.value.endsWith('/')) {
+    const attrValue = String(attributes[rule.attribute.name] ?? "");
+    if (
+      rule.attribute.value.startsWith("/") &&
+      rule.attribute.value.endsWith("/")
+    ) {
       // Regex pattern
       const pattern = new RegExp(rule.attribute.value.slice(1, -1));
       if (!pattern.test(attrValue)) return false;
@@ -66,7 +76,7 @@ export function resolveDisplayData(
   rules: StateRule[] | undefined,
   defaultConfig: Partial<DisplayConfig> | undefined,
   colorMap: Record<string, string> | undefined,
-  statusLabelConfig?: string
+  statusLabelConfig?: string,
 ): DisplayData {
   const entity = hass.states[entityId];
 
@@ -75,7 +85,7 @@ export function resolveDisplayData(
     return {
       ...ERROR_DISPLAY,
       subtitle: entityId,
-      statusLabel: statusLabelConfig || 'Status',
+      statusLabel: statusLabelConfig || "Status",
     };
   }
 
@@ -100,11 +110,11 @@ export function resolveDisplayData(
   // Resolve templates
   return {
     title: parseTemplate(source.title || state, context),
-    subtitle: parseTemplate(source.subtitle || '', context),
-    icon: parseTemplate(source.icon || 'mdi:information', context),
-    color: parseTemplate(source.color || '#9E9E9E', context),
-    statusText: parseTemplate(source.status_text || '', context),
-    statusLabel: parseTemplate(statusLabelConfig || 'Status', context),
+    subtitle: parseTemplate(source.subtitle || "", context),
+    icon: parseTemplate(source.icon || "mdi:information", context),
+    color: parseTemplate(source.color || "#9E9E9E", context),
+    statusText: parseTemplate(source.status_text || "", context),
+    statusLabel: parseTemplate(statusLabelConfig || "Status", context),
     titleFontSize: (source as StateRule).title_font_size,
     subtitleFontSize: (source as StateRule).subtitle_font_size,
   };

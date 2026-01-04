@@ -1,3 +1,4 @@
+---
 blueprint:
   name: "Status Banner: Medication Reminder"
   description: >
@@ -8,19 +9,19 @@ blueprint:
   input:
     tracker_sensor:
       name: Tracker Sensor
-      description: The template sensor created by the 'Status Banner: Medication Tracker' blueprint.
+      description: "The template sensor created by the 'Status Banner: Medication Tracker' blueprint."
       selector:
         entity:
           domain: sensor
     log_button:
       name: Log Button
-      description: The same input_button helper used in the sensor blueprint (to mark as taken).
+      description: "The same input_button helper used in the sensor blueprint (to mark as taken)."
       selector:
         entity:
           domain: input_button
     notify_device:
       name: Mobile Device
-      description: Where to send reminders.
+      description: "Where to send reminders."
       selector:
         device:
           integration: mobile_app

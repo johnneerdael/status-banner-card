@@ -98,10 +98,14 @@ template:
         attributes:
           status_text: >
             {# --- INPUTS REPEATED FOR SCOPE --- #}
-            {% set windows = expand(!input windows_group) | selectattr('state', 'eq', 'on') | map(attribute='name') | list %}
-            {% set doors = expand(!input doors_group) | selectattr('state', 'eq', 'on') | map(attribute='name') | list %}
-            {% set garage = expand(!input garage_door) | selectattr('state', 'eq', 'open') | map(attribute='name') | list %}
-            {% set unlocked = expand(!input locks) | selectattr('state', 'eq', 'unlocked') | map(attribute='name') | list %}
+            {% set windows = expand(!input windows_group)
+              | selectattr('state', 'eq', 'on') | map(attribute='name') | list %}
+            {% set doors = expand(!input doors_group)
+              | selectattr('state', 'eq', 'on') | map(attribute='name') | list %}
+            {% set garage = expand(!input garage_door)
+              | selectattr('state', 'eq', 'open') | map(attribute='name') | list %}
+            {% set unlocked = expand(!input locks)
+              | selectattr('state', 'eq', 'unlocked') | map(attribute='name') | list %}
 
             {% set weather = states(!input weather_entity) %}
             {% set raining = weather in ['rainy', 'pouring', 'hail', 'snowy', 'snowy-rainy'] %}

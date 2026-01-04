@@ -1,4 +1,4 @@
-import { TemplateContext } from '../types';
+import { TemplateContext } from "../types";
 
 /**
  * Parse and evaluate template strings with {{ }} syntax
@@ -11,12 +11,15 @@ import { TemplateContext } from '../types';
  * - {{ value | filter }} - apply filter
  * - {{ value | filter(arg) }} - apply filter with argument
  */
-export function parseTemplate(template: string, context: TemplateContext): string {
-  if (!template || typeof template !== 'string') {
-    return template ?? '';
+export function parseTemplate(
+  template: string,
+  context: TemplateContext,
+): string {
+  if (!template || typeof template !== "string") {
+    return template ?? "";
   }
 
-  if (!template.includes('{{')) {
+  if (!template.includes("{{")) {
     return template;
   }
 
@@ -24,8 +27,11 @@ export function parseTemplate(template: string, context: TemplateContext): strin
     try {
       return evaluateExpression(expression.trim(), context);
     } catch (e) {
-      console.warn(`[status-banner-card] Failed to evaluate expression: ${expression}`, e);
-      return '';
+      console.warn(
+        `[status-banner-card] Failed to evaluate expression: ${expression}`,
+        e,
+      );
+      return "";
     }
   });
 }
@@ -35,7 +41,7 @@ export function parseTemplate(template: string, context: TemplateContext): strin
  */
 function evaluateExpression(expr: string, ctx: TemplateContext): string {
   // Handle filters: value | filter | filter2
-  const parts = expr.split('|').map((p) => p.trim());
+  const parts = expr.split("|").map((p) => p.trim());
   let value = resolveValue(parts[0], ctx);
 
   // Apply filters
@@ -43,7 +49,7 @@ function evaluateExpression(expr: string, ctx: TemplateContext): string {
     value = applyFilter(value, parts[i], ctx);
   }
 
-  return String(value ?? '');
+  return String(value ?? "");
 }
 
 /**
@@ -51,12 +57,12 @@ function evaluateExpression(expr: string, ctx: TemplateContext): string {
  */
 function resolveValue(expr: string, ctx: TemplateContext): unknown {
   // {{ state }}
-  if (expr === 'state') {
+  if (expr === "state") {
     return ctx.state;
   }
 
   // {{ attr.name }}
-  if (expr.startsWith('attr.')) {
+  if (expr.startsWith("attr.")) {
     const attrName = expr.substring(5);
     return ctx.attr[attrName];
   }
@@ -64,7 +70,7 @@ function resolveValue(expr: string, ctx: TemplateContext): unknown {
   // {{ states('entity_id') }}
   const statesMatch = expr.match(/^states\(['"](.+)['"]\)$/);
   if (statesMatch) {
-    return ctx.hass.states[statesMatch[1]]?.state ?? 'unknown';
+    return ctx.hass.states[statesMatch[1]]?.state ?? "unknown";
   }
 
   // {{ state_attr('entity_id', 'attr') }}
@@ -100,62 +106,68 @@ function resolveValue(expr: string, ctx: TemplateContext): unknown {
 /**
  * Apply a filter to a value
  */
-function applyFilter(value: unknown, filterExpr: string, ctx: TemplateContext): unknown {
+function applyFilter(
+  value: unknown,
+  filterExpr: string,
+  ctx: TemplateContext,
+): unknown {
   // Parse filter name and arguments
   const match = filterExpr.match(/^(\w+)(?:\((.+)\))?$/);
   if (!match) return value;
 
   const [, filterName, args] = match;
-  const str = String(value ?? '');
+  const str = String(value ?? "");
 
   switch (filterName) {
-    case 'upper':
+    case "upper":
       return str.toUpperCase();
 
-    case 'lower':
+    case "lower":
       return str.toLowerCase();
 
-    case 'capitalize':
+    case "capitalize":
       return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
-    case 'title':
+    case "title":
       return str.replace(/\b\w/g, (c) => c.toUpperCase());
 
-    case 'replace': {
+    case "replace": {
       const [search, replace] = parseArgs(args);
-      return str.replace(new RegExp(escapeRegex(search), 'g'), replace ?? '');
+      return str.replace(new RegExp(escapeRegex(search), "g"), replace ?? "");
     }
 
-    case 'default': {
+    case "default": {
       const [defaultValue] = parseArgs(args);
-      return str && str !== 'unknown' && str !== 'unavailable' ? str : defaultValue ?? '';
+      return str && str !== "unknown" && str !== "unavailable"
+        ? str
+        : (defaultValue ?? "");
     }
 
-    case 'color_map':
+    case "color_map":
       return ctx.colorMap?.[str] ?? ctx.colorMap?.default ?? str;
 
-    case 'timestamp_custom': {
+    case "timestamp_custom": {
       const [format] = parseArgs(args);
-      const timestamp = typeof value === 'number' ? value : parseFloat(str);
+      const timestamp = typeof value === "number" ? value : parseFloat(str);
       if (isNaN(timestamp)) return str;
       const date = new Date(timestamp * 1000);
-      return formatTimestamp(date, format ?? '%H:%M');
+      return formatTimestamp(date, format ?? "%H:%M");
     }
 
-    case 'round': {
+    case "round": {
       const [precision] = parseArgs(args);
-      const num = typeof value === 'number' ? value : parseFloat(str);
+      const num = typeof value === "number" ? value : parseFloat(str);
       if (isNaN(num)) return str;
-      const p = parseInt(precision ?? '0', 10);
+      const p = parseInt(precision ?? "0", 10);
       return num.toFixed(p);
     }
 
-    case 'int': {
-      const num = typeof value === 'number' ? value : parseFloat(str);
+    case "int": {
+      const num = typeof value === "number" ? value : parseFloat(str);
       return isNaN(num) ? 0 : Math.floor(num);
     }
 
-    case 'float': {
+    case "float": {
       const num = parseFloat(str);
       return isNaN(num) ? 0.0 : num;
     }
@@ -173,9 +185,9 @@ function parseArgs(args: string | undefined): string[] {
   if (!args) return [];
 
   const result: string[] = [];
-  let current = '';
+  let current = "";
   let inQuote = false;
-  let quoteChar = '';
+  let quoteChar = "";
 
   for (let i = 0; i < args.length; i++) {
     const char = args[i];
@@ -185,10 +197,10 @@ function parseArgs(args: string | undefined): string[] {
       quoteChar = char;
     } else if (char === quoteChar && inQuote) {
       inQuote = false;
-      quoteChar = '';
-    } else if (char === ',' && !inQuote) {
+      quoteChar = "";
+    } else if (char === "," && !inQuote) {
       result.push(current.trim());
-      current = '';
+      current = "";
     } else {
       current += char;
     }
@@ -198,54 +210,71 @@ function parseArgs(args: string | undefined): string[] {
     result.push(current.trim());
   }
 
-  return result.map((a) => a.replace(/^['"]|['"]$/g, ''));
+  return result.map((a) => a.replace(/^['"]|['"]$/g, ""));
 }
 
 /**
  * Format a Date object using strftime-like format
  */
 function formatTimestamp(date: Date, format: string): string {
-  const pad = (n: number, width = 2) => String(n).padStart(width, '0');
+  const pad = (n: number, width = 2) => String(n).padStart(width, "0");
 
   const replacements: Record<string, string> = {
-    '%Y': String(date.getFullYear()),
-    '%y': String(date.getFullYear()).slice(-2),
-    '%m': pad(date.getMonth() + 1),
-    '%d': pad(date.getDate()),
-    '%H': pad(date.getHours()),
-    '%M': pad(date.getMinutes()),
-    '%S': pad(date.getSeconds()),
-    '%I': pad(date.getHours() % 12 || 12),
-    '%p': date.getHours() >= 12 ? 'PM' : 'AM',
-    '%j': pad(getDayOfYear(date), 3),
-    '%w': String(date.getDay()),
-    '%a': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.getDay()],
-    '%A': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][
-      date.getDay()
-    ],
-    '%b': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][
-      date.getMonth()
-    ],
-    '%B': [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
+    "%Y": String(date.getFullYear()),
+    "%y": String(date.getFullYear()).slice(-2),
+    "%m": pad(date.getMonth() + 1),
+    "%d": pad(date.getDate()),
+    "%H": pad(date.getHours()),
+    "%M": pad(date.getMinutes()),
+    "%S": pad(date.getSeconds()),
+    "%I": pad(date.getHours() % 12 || 12),
+    "%p": date.getHours() >= 12 ? "PM" : "AM",
+    "%j": pad(getDayOfYear(date), 3),
+    "%w": String(date.getDay()),
+    "%a": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][date.getDay()],
+    "%A": [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ][date.getDay()],
+    "%b": [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
     ][date.getMonth()],
-    '%%': '%',
+    "%B": [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ][date.getMonth()],
+    "%%": "%",
   };
 
   let result = format;
   for (const [token, value] of Object.entries(replacements)) {
-    result = result.replace(new RegExp(token, 'g'), value);
+    result = result.replace(new RegExp(token, "g"), value);
   }
 
   return result;
@@ -265,5 +294,5 @@ function getDayOfYear(date: Date): number {
  * Escape special regex characters
  */
 function escapeRegex(str: string): string {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
