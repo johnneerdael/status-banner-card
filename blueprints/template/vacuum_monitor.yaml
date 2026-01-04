@@ -53,7 +53,7 @@ template:
             {% endif %}
 
           location: >
-             {{ state_attr(!input vacuum_entity, 'room') | default('Base Station') }}
+            {{ state_attr(!input vacuum_entity, 'room') | default('Base Station') }}
 
           icon_color: >
             {% if this.state == 'ERROR' %}#F44336

@@ -57,11 +57,11 @@ template:
 
         attributes:
           people_home: >
-             {% set people = expand(!input family_members) %}
-             {{ people | selectattr('state', 'eq', 'home') | map(attribute='friendly_name') | join(', ') }}
+            {% set people = expand(!input family_members) %}
+            {{ people | selectattr('state', 'eq', 'home') | map(attribute='friendly_name') | join(', ') }}
           home_count: >
-             {% set people = expand(!input family_members) %}
-             {{ people | selectattr('state', 'eq', 'home') | list | length }}
+            {% set people = expand(!input family_members) %}
+            {{ people | selectattr('state', 'eq', 'home') | list | length }}
           status_text: >
             {% if this.state == 'GUEST_MODE' %}
               Automations paused. Lighting motion sensors disabled.

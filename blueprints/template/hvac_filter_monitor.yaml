@@ -52,13 +52,13 @@ template:
         attributes:
           hours_used: "{{ states(!input runtime_sensor) }}"
           hours_remaining: >
-             {% set current = states(!input runtime_sensor) | float(0) %}
-             {% set max_h = !input max_hours %}
-             {{ (max_h - current) | round(1) }}
+            {% set current = states(!input runtime_sensor) | float(0) %}
+            {% set max_h = !input max_hours %}
+            {{ (max_h - current) | round(1) }}
           usage_percent: >
-             {% set current = states(!input runtime_sensor) | float(0) %}
-             {% set max_h = !input max_hours %}
-             {{ ((current / max_h) * 100) | round(0) }}
+            {% set current = states(!input runtime_sensor) | float(0) %}
+            {% set max_h = !input max_hours %}
+            {{ ((current / max_h) * 100) | round(0) }}
           filter_model: "!input filter_size"
           status_text: >
             {% set current = states(!input runtime_sensor) | float(0) %}
