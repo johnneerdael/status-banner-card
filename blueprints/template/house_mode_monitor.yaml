@@ -1,0 +1,81 @@
+blueprint:
+  name: "Status Banner: House Mode Monitor"
+  description: >
+    Aggregates family presence and 'Guest Mode' input boolean into a House Mode status.
+
+    States:
+    - GUEST_MODE: Guest boolean is ON.
+    - VACATION: Extended away status (optional).
+    - AWAY: All family members away.
+    - HOME: At least one person home.
+  domain: template
+  source_url: https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/house_mode_monitor.yaml
+  input:
+    family_members:
+      name: Family Members
+      description: Person entities to track.
+      selector:
+        entity:
+          domain: person
+          multiple: true
+    guest_mode:
+      name: Guest Mode Toggle
+      description: Input boolean that pauses automations.
+      selector:
+        entity:
+          domain: input_boolean
+    vacation_mode:
+      name: Vacation Mode Toggle (Optional)
+      default: []
+      selector:
+        entity:
+          domain: input_boolean
+
+template:
+  - sensor:
+      - name: House Mode Status
+        state: >
+          {# --- INPUTS --- #}
+          {% set guests = is_state(!input guest_mode, 'on') %}
+
+          {% set vac_entity = !input vacation_mode %}
+          {% set vacation = is_state(vac_entity, 'on') if vac_entity else false %}
+
+          {% set people = expand(!input family_members) %}
+          {% set home_count = people | selectattr('state', 'eq', 'home') | list | length %}
+
+          {# --- LOGIC --- #}
+          {% if guests %}
+            GUEST_MODE
+          {% elif vacation %}
+            VACATION
+          {% elif home_count == 0 %}
+            AWAY
+          {% else %}
+            HOME
+          {% endif %}
+
+        attributes:
+          people_home: >
+             {% set people = expand(!input family_members) %}
+             {{ people | selectattr('state', 'eq', 'home') | map(attribute='friendly_name') | join(', ') }}
+          home_count: >
+             {% set people = expand(!input family_members) %}
+             {{ people | selectattr('state', 'eq', 'home') | list | length }}
+          status_text: >
+            {% if this.state == 'GUEST_MODE' %}
+              Automations paused. Lighting motion sensors disabled.
+            {% elif this.state == 'VACATION' %}
+              Security mode active. Heating set to Eco.
+            {% elif this.state == 'AWAY' %}
+              All residents away. Alarm armed.
+            {% else %}
+              System normal. {{ this.attributes.people_home }} is home.
+            {% endif %}
+
+          icon_color: >
+            {% if this.state == 'GUEST_MODE' %}#9C27B0
+            {% elif this.state == 'VACATION' %}#2196F3
+            {% elif this.state == 'AWAY' %}#FF9800
+            {% else %}#4CAF50
+            {% endif %}

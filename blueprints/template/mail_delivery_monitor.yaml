@@ -1,0 +1,89 @@
+blueprint:
+  name: "Status Banner: Mail Delivery Sensor"
+  description: >
+    Tracks physical mailbox status using a vibration or contact sensor.
+
+    States:
+    - MAIL_ARRIVED: Sensor triggered today, not yet retrieved.
+    - RETRIEVED: Mail was collected (reset triggered).
+    - EMPTY: No mail today.
+  domain: template
+  source_url: https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/mail_delivery_monitor.yaml
+  input:
+    mailbox_sensor:
+      name: Mailbox Sensor
+      description: Vibration or Contact sensor inside the mailbox.
+      selector:
+        entity:
+          domain: binary_sensor
+    reset_helper:
+      name: Reset/Retrieval Helper
+      description: Input Button or Boolean to mark mail as "Retrieved".
+      selector:
+        entity:
+          domain: [input_button, input_boolean]
+
+template:
+  - sensor:
+      - name: Mailbox Dashboard Status
+        state: >
+          {# This sensor relies on an automation to toggle a helper, #}
+          {# OR we can try to infer state from timestamps if simple. #}
+          {# For robustness, we will assume an automation manages an input_select or input_text #}
+          {# BUT since this is a Template Blueprint, we want it self-contained if possible. #}
+          {# We'll use a 'last_changed' comparison logic if possible, but state persistence is hard in templates. #}
+          {# Recommendation: This blueprint simply formats an existing helper status. #}
+
+          {# User must provide a helper that tracks the state: EMPTY, MAIL_ARRIVED #}
+          {# Actually, let's make this easier: #}
+          {# We can use a trigger-based template sensor! #}
+          {# Wait, blueprints for template sensors support triggers? YES! #}
+
+          MAIL_STATUS_PLACEHOLDER
+          {# We will override this entire block with a trigger-based config below #}
+
+    # Trigger-based template sensor structure
+    trigger:
+      - platform: state
+        entity_id: !input mailbox_sensor
+        to: "on"
+        id: "mail"
+      - platform: state
+        entity_id: !input reset_helper
+        id: "reset"
+      - platform: time
+        at: "00:00:00"
+        id: "new_day"
+
+    sensor:
+      - name: Mailbox Dashboard Status
+        state: >
+          {% if trigger.id == 'mail' %}
+            MAIL_ARRIVED
+          {% elif trigger.id == 'reset' %}
+            RETRIEVED
+          {% elif trigger.id == 'new_day' %}
+            EMPTY
+          {% else %}
+            {{ this.state | default('EMPTY') }}
+          {% endif %}
+        attributes:
+          last_delivery: >
+            {% if trigger.id == 'mail' %}
+              {{ now().isoformat() }}
+            {% else %}
+              {{ this.attributes.last_delivery | default(None) }}
+            {% endif %}
+          status_text: >
+            {% if trigger.id == 'mail' %}
+              Mailbox opened at {{ now().strftime('%H:%M') }}.
+            {% elif trigger.id == 'reset' %}
+              Mail collected.
+            {% else %}
+              No mail today.
+            {% endif %}
+          icon_color: >
+            {% if this.state == 'MAIL_ARRIVED' %}#FFEB3B
+            {% elif this.state == 'RETRIEVED' %}#4CAF50
+            {% else %}#9E9E9E
+            {% endif %}

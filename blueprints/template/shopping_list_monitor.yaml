@@ -1,0 +1,51 @@
+blueprint:
+  name: "Status Banner: Shopping List Monitor"
+  description: >
+    Monitors a Todo list (e.g., Shopping) and counts incomplete items.
+
+    States:
+    - SHOPPING_NEEDED: List has items.
+    - EMPTY: List is empty.
+  domain: template
+  source_url: https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/shopping_list_monitor.yaml
+  input:
+    todo_entity:
+      name: Todo List Entity
+      description: A 'todo' entity (e.g., todo.shopping_list).
+      selector:
+        entity:
+          domain: todo
+
+template:
+  - sensor:
+      - name: Shopping Dashboard Status
+        state: >
+          {# --- INPUTS --- #}
+          {% set count = state_attr(!input todo_entity, 'todo_items') | default([]) | length %}
+          {# Some todo integrations use just 'state' for count, others use attributes. #}
+          {# Standard 'todo' domain state represents count of incomplete items. #}
+          {% set state_count = states(!input todo_entity) | int(0) %}
+
+          {# --- LOGIC --- #}
+          {% if state_count > 0 %}
+            SHOPPING_NEEDED
+          {% else %}
+            EMPTY
+          {% endif %}
+
+        attributes:
+          item_count: "{{ states(!input todo_entity) }}"
+          # Note: Getting list items in a template is tricky without a service call response variable.
+          # We rely on standard state behavior (count).
+          status_text: >
+            {% set c = states(!input todo_entity) | int(0) %}
+            {% if c > 0 %}
+              {{ c }} items pending. Tap to view list.
+            {% else %}
+              List is empty.
+            {% endif %}
+
+          icon_color: >
+            {% if this.state == 'SHOPPING_NEEDED' %}#2196F3
+            {% else %}#9E9E9E
+            {% endif %}

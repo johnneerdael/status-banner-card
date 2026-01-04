@@ -97,83 +97,27 @@ A flexible Home Assistant Lovelace card with a distinctive banner design for dis
 
 * [Smart Bin Detection Blueprint](https://gist.githubusercontent.com/johnneerdael/f1907f11554b50ee9eee3391987f9092/raw/d105230acd8447b602b1cbea8638129085405083/garbage-collection-001.yaml), Addons used: Afvalbeheer, Time and Date, TTS and Camera Integration and LLM Vision
 
-## Blueprints
+## Blueprint Library
 
-This repository includes ready-to-use Home Assistant blueprints that complement the Lovelace Multi State Entities Card. They are divided into **Template Blueprints** (which create the Dashboard Sensor) and **Automation Blueprints** (which handle logic, notifications, and AI).
+This card comes with a suite of "Blueprints" to help you get started quickly. These blueprints create the necessary **Template Sensors** (to aggregate state) and **Automations** (to handle logic and notifications).
 
-### 🗑️ Garbage Collection
+> **Tip:** Install the "Template" blueprint first to create the sensor, then install the "Automation" blueprint to add intelligence.
 
-**1. Dashboard Sensor (Template)**
-Creates the unified `sensor.garbage_dashboard_status` used by the card.
-- **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/garbage_dashboard_sensor.yaml)
-- **Features:** Aggregates schedule sensors and AI vision memory into a single state (`PUT_OUT`, `BRING_IN`, `IDLE`).
-
-**2. Vision Verification (Automation)**
-The "Brain" behind the system.
-- **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/automation/garbage_vision_verification.yaml)
-- **Features:** Uses LLM Vision to count bins, updates the memory helper, and sends mobile notifications.
-
-### 🏠 Appliance Monitor
-
-**1. Appliance Status Sensor (Template)**
-Smart logic for washers, dryers, and dishwashers.
-- **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/appliance_status_sensor.yaml)
-- **Features:** Translates power usage (W) into states: `Running`, `Finished` (cycle complete), and `Idle`. Handles "finish delays" to avoid false positives during pauses.
-
-**2. Cycle Notifications (Automation)**
-- **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/automation/appliance_notification.yaml)
-- **Features:** Triggers when the sensor switches to `Finished`. Sends a mobile alert.
-
-### 💊 Medication & Chore Tracker
-
-**1. Tracker Sensor (Template)**
-Visualizes adherence to a daily schedule.
-- **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/medication_tracker_sensor.yaml)
-- **Features:** Tracks `TAKEN`, `DUE`, and `MISSED` states based on a schedule time and an input button.
-
-**2. Reminder System (Automation)**
-- **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/automation/medication_reminder.yaml)
-- **Features:** Sends actionable notifications (iOS/Android) allowing you to log the dose directly from the notification. "Nags" every 30 minutes if missed.
-
-### 🛡️ Security Monitor
-
-**1. Security Dashboard Status (Template)**
-Aggregates perimeter sensors and weather data.
-- **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/security_monitor.yaml)
-- **Features:**
-  - `CRITICAL_RAIN`: Alerts if windows are open while it's raining.
-  - `INSECURE_AWAY`: Alerts if doors/locks are open while no one is home.
-  - `GARAGE_OPEN`: specific warning for garage doors.
-
-### 🌿 Environment Monitor
-
-**1. Environment Dashboard Status (Template)**
-Aggregates Indoor Air Quality (CO2, PM2.5) and Outdoor data (AQI, Pollen).
-- **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/environment_monitor.yaml)
-- **Features:**
-  - `DANGER`: Hazardous levels (>1500ppm CO2, >150 AQI).
-  - `WARNING`: Poor air quality or High Pollen.
-  - `GOOD`: Healthy ranges.
-
-### ⚡ Energy Monitor
-
-**1. Home Energy Dashboard (Template)**
-Visualizes Grid and Battery status for solar setups.
-- **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/battery_status.yaml)
-- **Features:**
-  - `GRID_OUTAGE`: Running on battery backup.
-  - `PEAK_RATE`: High electricity tariff active.
-  - `EXPORTING`/`IMPORTING`: Real-time grid flow direction.
-
-### 🚗 Traffic & Commute
-
-**1. Commute Dashboard Status (Template)**
-Tracks travel time delay to a destination.
-- **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/commute_monitor.yaml)
-- **Features:**
-  - `HEAVY_TRAFFIC`: Significant delays (>15m).
-  - `MODERATE_TRAFFIC`: Noticeable slowdowns.
-  - `CLEAR`: Free-flowing traffic.
+| Use Case | Dashboard Sensor (Template) | Logic & Notifications (Automation) |
+| :--- | :---: | :---: |
+| **🗑️ Garbage Collection**<br>AI-powered bin monitoring | [![Import](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/garbage_dashboard_sensor.yaml) | [![Import](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/automation/garbage_vision_verification.yaml) |
+| **⚡ EV Smart Charging**<br>Charge on solar/low price | [![Import](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/ev_charging_status.yaml) | [![Import](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/automation/ev_charging_logic.yaml) |
+| **🏠 Appliance Monitor**<br>Washer/Dryer/Dishwasher alerts | [![Import](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/appliance_status_sensor.yaml) | [![Import](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/automation/appliance_notification.yaml) |
+| **💊 Medication Tracker**<br>Daily adherence & nagging | [![Import](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/medication_tracker_sensor.yaml) | [![Import](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/automation/medication_reminder.yaml) |
+| **📬 Mail Delivery**<br>Physical mailbox monitoring | [![Import](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/mail_delivery_monitor.yaml) | [![Import](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/automation/mail_notification.yaml) |
+| **🛡️ Security Monitor**<br>Windows, doors, locks, & weather | [![Import](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/security_monitor.yaml) | *(Use HA Alarms)* |
+| **🌿 Environment**<br>Air Quality, CO2, Pollen | [![Import](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/environment_monitor.yaml) | *(Use HA Automations)* |
+| **🔋 Energy Dashboard**<br>Grid, Battery, Solar | [![Import](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/battery_status.yaml) | *(Use HA Energy)* |
+| **🚗 Commute Traffic**<br>Waze/Here travel times | [![Import](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/commute_monitor.yaml) | - |
+| **🧹 Vacuum Monitor**<br>Error tracking & status | [![Import](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/vacuum_monitor.yaml) | - |
+| **🌬️ HVAC Filter**<br>Runtime tracking | [![Import](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/hvac_filter_monitor.yaml) | - |
+| **👨‍👩‍👧 House Mode**<br>Guest/Vacation/Away logic | [![Import](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/house_mode_monitor.yaml) | - |
+| **🛒 Shopping List**<br>Todo list monitoring | [![Import](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/shopping_list_monitor.yaml) | - |
 
 ## Installation
 

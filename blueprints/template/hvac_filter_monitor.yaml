@@ -1,0 +1,77 @@
+blueprint:
+  name: "Status Banner: HVAC Filter Monitor"
+  description: >
+    Tracks HVAC runtime hours to recommend filter replacements.
+
+    States:
+    - OVERDUE: Runtime exceeded max limit (> 100%).
+    - REPLACE_SOON: Runtime nearing limit (> 90%).
+    - OK: Runtime within limits.
+  domain: template
+  source_url: https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/hvac_filter_monitor.yaml
+  input:
+    runtime_sensor:
+      name: Filter Runtime Hours
+      description: A history_stats sensor or counter tracking fan hours.
+      selector:
+        entity:
+          domain: [sensor, counter]
+    max_hours:
+      name: Max Runtime (Hours)
+      description: Replacement interval (e.g., 300 hours).
+      default: 300
+      selector:
+        number:
+          min: 1
+          max: 1000
+    filter_size:
+      name: Filter Size (Text)
+      description: e.g., "20x20x1"
+      default: "20x20x1"
+      selector:
+        text: {}
+
+template:
+  - sensor:
+      - name: HVAC Filter Status
+        state: >
+          {# --- INPUTS --- #}
+          {% set current = states(!input runtime_sensor) | float(0) %}
+          {% set max_h = !input max_hours %}
+          {% set usage = (current / max_h) * 100 %}
+
+          {# --- LOGIC --- #}
+          {% if usage >= 100 %}
+            OVERDUE
+          {% elif usage >= 90 %}
+            REPLACE_SOON
+          {% else %}
+            OK
+          {% endif %}
+
+        attributes:
+          hours_used: "{{ states(!input runtime_sensor) }}"
+          hours_remaining: >
+             {% set current = states(!input runtime_sensor) | float(0) %}
+             {% set max_h = !input max_hours %}
+             {{ (max_h - current) | round(1) }}
+          usage_percent: >
+             {% set current = states(!input runtime_sensor) | float(0) %}
+             {% set max_h = !input max_hours %}
+             {{ ((current / max_h) * 100) | round(0) }}
+          filter_model: "!input filter_size"
+          status_text: >
+            {% set current = states(!input runtime_sensor) | float(0) %}
+            {% set max_h = !input max_hours %}
+            {% set usage = (current / max_h) * 100 %}
+
+            {% if usage >= 100 %}Airflow restriction likely. Order replacement (!input filter_size).
+            {% elif usage >= 90 %}Order new filter soon.
+            {% else %}System operating normally.
+            {% endif %}
+
+          icon_color: >
+            {% if this.state == 'OVERDUE' %}#F44336
+            {% elif this.state == 'REPLACE_SOON' %}#FF9800
+            {% else %}#4CAF50
+            {% endif %}

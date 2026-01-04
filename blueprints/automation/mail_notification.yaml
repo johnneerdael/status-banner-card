@@ -1,0 +1,53 @@
+blueprint:
+  name: "Status Banner: Mail Notification"
+  description: >
+    Sends a notification when mail arrives, including an action to mark it as retrieved.
+  domain: automation
+  source_url: https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/automation/mail_notification.yaml
+  input:
+    dashboard_sensor:
+      name: Mailbox Dashboard Status
+      description: The trigger-based template sensor.
+      selector:
+        entity:
+          domain: sensor
+    notify_device:
+      name: Mobile Device
+      selector:
+        device:
+          integration: mobile_app
+    reset_helper:
+      name: Reset/Retrieval Helper
+      description: "The same helper used in the sensor blueprint (to mark retrieved)."
+      selector:
+        entity:
+          domain: input_button
+
+trigger:
+  - platform: state
+    entity_id: !input dashboard_sensor
+    to: "MAIL_ARRIVED"
+
+action:
+  - domain: mobile_app
+    type: notify
+    device_id: !input notify_device
+    title: "📬 You've Got Mail!"
+    message: "Mailbox sensor triggered at {{ now().strftime('%H:%M') }}."
+    data:
+      actions:
+        - action: "MARK_RETRIEVED"
+          title: "Mark Retrieved"
+          activationMode: "background"
+
+  - wait_for_trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: "MARK_RETRIEVED"
+    timeout: "02:00:00"
+    continue_on_timeout: false
+
+  - action: input_button.press
+    target:
+      entity_id: !input reset_helper
