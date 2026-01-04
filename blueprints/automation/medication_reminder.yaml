@@ -1,0 +1,91 @@
+blueprint:
+  name: "Status Banner: Medication Reminder"
+  description: >
+    Sends actionable notifications when your Tracker Sensor becomes 'DUE' or 'MISSED'.
+    Includes an actionable notification button to 'Log' the dose directly from the notification.
+  domain: automation
+  source_url: https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/automation/medication_reminder.yaml
+  input:
+    tracker_sensor:
+      name: Tracker Sensor
+      description: The template sensor created by the 'Status Banner: Medication Tracker' blueprint.
+      selector:
+        entity:
+          domain: sensor
+    log_button:
+      name: Log Button
+      description: The same input_button helper used in the sensor blueprint (to mark as taken).
+      selector:
+        entity:
+          domain: input_button
+    notify_device:
+      name: Mobile Device
+      description: Where to send reminders.
+      selector:
+        device:
+          integration: mobile_app
+    reminder_title:
+      name: Reminder Title
+      default: "Medication Reminder"
+      selector:
+        text: {}
+
+trigger:
+  # 1. When it first becomes DUE
+  - platform: state
+    entity_id: !input tracker_sensor
+    to: "DUE"
+    id: "initial_due"
+  # 2. When it becomes MISSED
+  - platform: state
+    entity_id: !input tracker_sensor
+    to: "MISSED"
+    id: "missed"
+  # 3. Recurring nagging if still DUE/MISSED (every 30m)
+  - platform: time_pattern
+    minutes: "/30"
+    id: "nag"
+
+condition:
+  - condition: or
+    conditions:
+      - condition: trigger
+        id: ["initial_due", "missed"]
+      - condition: and
+        conditions:
+          - condition: trigger
+            id: "nag"
+          # Only nag if state is actually DUE or MISSED
+          - condition: state
+            entity_id: !input tracker_sensor
+            state: ["DUE", "MISSED"]
+
+action:
+  - domain: mobile_app
+    type: notify
+    device_id: !input notify_device
+    title: !input reminder_title
+    message: "Status is currently: {{ states(!input tracker_sensor) }}"
+    data:
+      actions:
+        - action: "LOG_MEDICATION"
+          title: "Mark as Taken"
+          activationMode: "background"
+      push:
+        sound:
+          name: default
+          critical: 1
+          volume: 1.0
+
+  # Wait for the action (optional robust handling)
+  - wait_for_trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: "LOG_MEDICATION"
+    timeout: "00:30:00"
+    continue_on_timeout: false
+
+  - action: input_button.press
+    target:
+      entity_id: !input log_button

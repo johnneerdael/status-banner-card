@@ -1,0 +1,113 @@
+blueprint:
+  name: "Status Banner: Garbage Dashboard Sensor"
+  description: >
+    Creates a template sensor that aggregates your trash schedule (from Afvalbeheer, Waste Collection Schedule, etc.)
+    and AI vision memory into a single 'Dashboard Status' entity.
+
+    This entity is designed to be the primary data source for the Lovelace Multi State Entities Card.
+
+    RECOMMENDED CARD CONFIG:
+    - Entity: This sensor
+    - Rules:
+      - State: PUT_OUT -> Color: {{ attr.target_bin | color_map }}
+      - State: BRING_IN -> Color: Red (#F44336)
+  domain: template
+  source_url: https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/garbage_dashboard_sensor.yaml
+  input:
+    sensor_tomorrow:
+      name: Trash Schedule (Tomorrow)
+      description: Sensor that states what trash is picked up tomorrow.
+      selector:
+        entity:
+          domain: sensor
+    sensor_today:
+      name: Trash Schedule (Today)
+      description: Sensor that states what trash is being picked up today.
+      selector:
+        entity:
+          domain: sensor
+    memory_helper:
+      name: Vision Memory Helper (Optional)
+      description: "Input Text entity used by the Vision Automation to track bins left outside."
+      default: ""
+      selector:
+        entity:
+          domain: input_text
+
+template:
+  - sensor:
+      - name: Garbage Dashboard Status
+        state: >
+          {% set mem_entity = !input memory_helper %}
+          {% set mem = states(mem_entity) if mem_entity else '' %}
+          {% set raw_tomorrow = states(!input sensor_tomorrow) | lower %}
+          {% set raw_today = states(!input sensor_today) | lower %}
+          {% set invalid = ['unknown', 'unavailable', 'geen', 'none', ''] %}
+
+          {% if mem not in invalid %}
+            BRING_IN
+          {% elif raw_tomorrow not in invalid %}
+            PUT_OUT
+          {% elif raw_today not in invalid %}
+            BRING_IN
+          {% else %}
+            IDLE
+          {% endif %}
+        attributes:
+          target_bin: >
+            {% set mem_entity = !input memory_helper %}
+            {% set mem = states(mem_entity) if mem_entity else '' %}
+            {% set raw_tomorrow = states(!input sensor_tomorrow) | lower %}
+            {% set raw_today = states(!input sensor_today) | lower %}
+
+            {# Adjust these mappings to match your sensor outputs #}
+            {% set cmap = {
+              'restafval': 'black', 'general': 'black',
+              'gft': 'green', 'organic': 'green',
+              'papier': 'blue', 'paper': 'blue',
+              'pmd': 'purple', 'plastic': 'purple'
+            } %}
+
+            {% if mem not in ['unknown', 'unavailable', ''] %}
+              {{ mem }}
+            {% elif raw_tomorrow not in ['unknown', 'unavailable', 'geen', 'none'] %}
+              {{ cmap.get(raw_tomorrow, 'none') }}
+            {% elif raw_today not in ['unknown', 'unavailable', 'geen', 'none'] %}
+              {{ cmap.get(raw_today, 'none') }}
+            {% else %}
+              none
+            {% endif %}
+          friendly_name_text: >
+            {% set mem_entity = !input memory_helper %}
+            {% set mem = states(mem_entity) if mem_entity else '' %}
+            {% set raw_tomorrow = states(!input sensor_tomorrow) | lower %}
+            {% set raw_today = states(!input sensor_today) | lower %}
+
+            {% set names = {
+              'restafval': 'General Waste',
+              'gft': 'Compost',
+              'pmd': 'Plastic',
+              'papier': 'Paper'
+            } %}
+
+            {% if mem not in ['unknown', 'unavailable', ''] %}
+              {{ mem | capitalize }}
+            {% elif raw_tomorrow not in ['unknown', 'unavailable', 'geen', 'none'] %}
+              {{ names.get(raw_tomorrow, raw_tomorrow) }}
+            {% elif raw_today not in ['unknown', 'unavailable', 'geen', 'none'] %}
+              {{ names.get(raw_today, raw_today) }}
+            {% else %}
+              Bin
+            {% endif %}
+          status_reason: >
+            {% set mem_entity = !input memory_helper %}
+            {% set mem = states(mem_entity) if mem_entity else '' %}
+            {% if mem not in ['unknown', 'unavailable', ''] %}
+              Vision confirms bin is still outside
+            {% else %}
+              Based on collection schedule
+            {% endif %}
+          source: >
+            {% set mem_entity = !input memory_helper %}
+            {% set mem = states(mem_entity) if mem_entity else '' %}
+            {% if mem not in ['unknown', 'unavailable', ''] %}vision{% else %}schedule{% endif %}

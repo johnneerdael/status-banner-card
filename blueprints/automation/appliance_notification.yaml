@@ -1,0 +1,49 @@
+blueprint:
+  name: "Status Banner: Appliance Notifications"
+  description: >
+    Sends notifications when your Appliance Monitor Sensor changes to 'Finished'.
+    Designed to work with the 'Status Banner: Appliance Monitor Sensor' blueprint.
+  domain: automation
+  source_url: https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/automation/appliance_notification.yaml
+  input:
+    status_sensor:
+      name: Appliance Status Sensor
+      description: The template sensor created by the 'Status Banner: Appliance Monitor' blueprint.
+      selector:
+        entity:
+          domain: sensor
+    notify_device:
+      name: Mobile Device
+      description: Where to send the 'Cycle Complete' notification.
+      selector:
+        device:
+          integration: mobile_app
+    message_title:
+      name: Notification Title
+      default: "Appliance Finished"
+      selector:
+        text: {}
+    message_body:
+      name: Notification Body
+      default: "The cycle has finished. Please empty the machine."
+      selector:
+        text: {}
+
+trigger:
+  - platform: state
+    entity_id: !input status_sensor
+    to: "Finished"
+    from: "Running"
+
+action:
+  - domain: mobile_app
+    type: notify
+    device_id: !input notify_device
+    title: !input message_title
+    message: !input message_body
+    data:
+      push:
+        sound:
+          name: default
+          critical: 0
+          volume: 0.5
