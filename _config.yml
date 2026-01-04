@@ -1,0 +1,4 @@
+repository: "johnneerdael/lovelace-multi-state-entities-card"
+exclude:
+  - blueprints/
+  - AGENTS.md
