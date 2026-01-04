@@ -1,0 +1,142 @@
+blueprint:
+  name: "Status Banner: Security Monitor"
+  description: >
+    Aggregates windows, doors, locks, and weather data into a single 'Security Dashboard Status' entity.
+
+    Logic:
+    1. CRITICAL: Rain is detected AND windows are open.
+    2. WARNING: Garage door left open, or doors unlocked while Away.
+    3. SECURE: All sensors closed/locked.
+  domain: template
+  source_url: https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/security_monitor.yaml
+  input:
+    windows_group:
+      name: Window Group
+      description: A group or single entity representing all windows.
+      selector:
+        entity:
+          domain: binary_sensor
+          device_class: window
+          multiple: true
+    doors_group:
+      name: Exterior Doors Group
+      description: A group or single entity representing exterior doors.
+      selector:
+        entity:
+          domain: binary_sensor
+          device_class: door
+          multiple: true
+    garage_door:
+      name: Garage Door (Optional)
+      description: The cover entity for the garage door.
+      default: []
+      selector:
+        entity:
+          domain: cover
+          device_class: garage
+          multiple: true
+    locks:
+      name: Smart Locks (Optional)
+      description: Entities to check for locked status.
+      default: []
+      selector:
+        entity:
+          domain: lock
+          multiple: true
+    weather_entity:
+      name: Weather Provider
+      description: Used to detect rain/snow.
+      selector:
+        entity:
+          domain: weather
+    presence_entity:
+      name: Home Presence (Optional)
+      description: Used to determine if "Unlocked" is a risk (Risk only if Away).
+      default: []
+      selector:
+        entity:
+          domain: person
+          multiple: true
+
+template:
+  - sensor:
+      - name: Security Dashboard Status
+        state: >
+          {# --- INPUTS --- #}
+          {% set windows = expand(!input windows_group) | selectattr('state', 'eq', 'on') | list %}
+          {% set doors = expand(!input doors_group) | selectattr('state', 'eq', 'on') | list %}
+          {% set garage = expand(!input garage_door) | selectattr('state', 'eq', 'open') | list %}
+          {% set unlocked = expand(!input locks) | selectattr('state', 'eq', 'unlocked') | list %}
+
+          {% set weather = states(!input weather_entity) %}
+          {% set raining = weather in ['rainy', 'pouring', 'hail', 'snowy', 'snowy-rainy'] %}
+
+          {# Presence Logic: Check if ANY person is home #}
+          {% set persons = expand(!input presence_entity) %}
+          {% set is_away = false %}
+          {% if persons | length > 0 %}
+             {% set is_away = (persons | selectattr('state', 'eq', 'home') | list | length) == 0 %}
+          {% endif %}
+
+          {# --- LOGIC --- #}
+          {% if raining and windows | length > 0 %}
+            CRITICAL_RAIN
+          {% elif garage | length > 0 %}
+            GARAGE_OPEN
+          {% elif is_away and (doors | length > 0 or unlocked | length > 0) %}
+            INSECURE_AWAY
+          {% elif doors | length > 0 %}
+            DOOR_OPEN
+          {% elif windows | length > 0 %}
+            WINDOW_OPEN
+          {% elif unlocked | length > 0 %}
+            UNLOCKED
+          {% else %}
+            SECURE
+          {% endif %}
+
+        attributes:
+          status_text: >
+            {# --- INPUTS REPEATED FOR SCOPE --- #}
+            {% set windows = expand(!input windows_group) | selectattr('state', 'eq', 'on') | map(attribute='name') | list %}
+            {% set doors = expand(!input doors_group) | selectattr('state', 'eq', 'on') | map(attribute='name') | list %}
+            {% set garage = expand(!input garage_door) | selectattr('state', 'eq', 'open') | map(attribute='name') | list %}
+            {% set unlocked = expand(!input locks) | selectattr('state', 'eq', 'unlocked') | map(attribute='name') | list %}
+
+            {% set weather = states(!input weather_entity) %}
+            {% set raining = weather in ['rainy', 'pouring', 'hail', 'snowy', 'snowy-rainy'] %}
+
+            {# --- MESSAGING --- #}
+            {% if raining and windows | length > 0 %}
+              Rain detected! Close: {{ windows | join(', ') }}
+            {% elif garage | length > 0 %}
+              Garage is open: {{ garage | join(', ') }}
+            {% elif doors | length > 0 %}
+              Door open: {{ doors | join(', ') }}
+            {% elif windows | length > 0 %}
+              Window open: {{ windows | join(', ') }}
+            {% elif unlocked | length > 0 %}
+              Unlocked: {{ unlocked | join(', ') }}
+            {% else %}
+              All perimeter sensors secure.
+            {% endif %}
+
+          icon_color: >
+            {% if this.state == 'CRITICAL_RAIN' %}#F44336
+            {% elif this.state == 'GARAGE_OPEN' %}#F44336
+            {% elif this.state == 'INSECURE_AWAY' %}#F44336
+            {% elif this.state == 'DOOR_OPEN' %}#FF9800
+            {% elif this.state == 'UNLOCKED' %}#FF9800
+            {% elif this.state == 'WINDOW_OPEN' %}#2196F3
+            {% else %}#4CAF50
+            {% endif %}
+
+          friendly_state: >
+            {% if this.state == 'CRITICAL_RAIN' %}Rain Risk
+            {% elif this.state == 'GARAGE_OPEN' %}Garage Open
+            {% elif this.state == 'INSECURE_AWAY' %}House Insecure
+            {% elif this.state == 'DOOR_OPEN' %}Door Open
+            {% elif this.state == 'UNLOCKED' %}Unlocked
+            {% elif this.state == 'WINDOW_OPEN' %}Window Open
+            {% else %}Secure
+            {% endif %}

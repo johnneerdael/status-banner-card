@@ -23,6 +23,12 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Run Tests
+        run: |
+          # Transpile test file for quick check (using ts-node-like behavior via tsc)
+          npx tsc test/basic.test.ts --target esnext --module commonjs --moduleResolution node --esModuleInterop
+          node test/basic.test.js
+
       - name: Build
         run: npm run build
 

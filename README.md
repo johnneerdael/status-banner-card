@@ -1,8 +1,8 @@
 # Lovelace Multi State Entities Card
 
-[![HACS](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=johnneerdael&repository=lovelace-multi-state-entities-card&category=plugin)
 [![GitHub Release](https://img.shields.io/github/release/johnneerdael/lovelace-multi-state-entities-card.svg)](https://github.com/johnneerdael/lovelace-multi-state-entities-card/releases)
-![GitHub License](https://img.shields.io/github/license/johnneerdael/lovelace-multi-state-entities-card?link=https%3A%2F%2Fgithub.com%2Fjohnneerdael%2Flovelace-multi-state-entities-card%2Fblob%2Fmain%2FLICENSE)
+[![GitHub License](https://img.shields.io/github/license/johnneerdael/lovelace-multi-state-entities-card?link=https%3A%2F%2Fgithub.com%2Fjohnneerdael%2Flovelace-multi-state-entities-card%2Fblob%2Fmain%2FLICENSE)](https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/LICENSE)
 
 A flexible Home Assistant Lovelace card with a distinctive banner design for displaying entity states. This card excels at displaying "Call to Action" information—situations where the user needs to know something immediately or do something specific. Because of the distinct banner style and the ability to map colors to a flexible number of states, it works best for cards that should support 2 or more different types of states differently. Unique is that the card has no limit to the number of states or associated state colors that you want to report on.
 
@@ -105,35 +105,75 @@ This repository includes ready-to-use Home Assistant blueprints that complement 
 
 **1. Dashboard Sensor (Template)**
 Creates the unified `sensor.garbage_dashboard_status` used by the card.
-- **Import:** [`blueprints/template/garbage_dashboard_sensor.yaml`](blueprints/template/garbage_dashboard_sensor.yaml)
+- **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/garbage_dashboard_sensor.yaml)
 - **Features:** Aggregates schedule sensors and AI vision memory into a single state (`PUT_OUT`, `BRING_IN`, `IDLE`).
 
 **2. Vision Verification (Automation)**
 The "Brain" behind the system.
-- **Import:** [`blueprints/automation/garbage_vision_verification.yaml`](blueprints/automation/garbage_vision_verification.yaml)
+- **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/automation/garbage_vision_verification.yaml)
 - **Features:** Uses LLM Vision to count bins, updates the memory helper, and sends mobile notifications.
 
 ### 🏠 Appliance Monitor
 
 **1. Appliance Status Sensor (Template)**
 Smart logic for washers, dryers, and dishwashers.
-- **Import:** [`blueprints/template/appliance_status_sensor.yaml`](blueprints/template/appliance_status_sensor.yaml)
+- **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/appliance_status_sensor.yaml)
 - **Features:** Translates power usage (W) into states: `Running`, `Finished` (cycle complete), and `Idle`. Handles "finish delays" to avoid false positives during pauses.
 
 **2. Cycle Notifications (Automation)**
-- **Import:** [`blueprints/automation/appliance_notification.yaml`](blueprints/automation/appliance_notification.yaml)
+- **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/automation/appliance_notification.yaml)
 - **Features:** Triggers when the sensor switches to `Finished`. Sends a mobile alert.
 
 ### 💊 Medication & Chore Tracker
 
 **1. Tracker Sensor (Template)**
 Visualizes adherence to a daily schedule.
-- **Import:** [`blueprints/template/medication_tracker_sensor.yaml`](blueprints/template/medication_tracker_sensor.yaml)
+- **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/medication_tracker_sensor.yaml)
 - **Features:** Tracks `TAKEN`, `DUE`, and `MISSED` states based on a schedule time and an input button.
 
 **2. Reminder System (Automation)**
-- **Import:** [`blueprints/automation/medication_reminder.yaml`](blueprints/automation/medication_reminder.yaml)
+- **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/automation/medication_reminder.yaml)
 - **Features:** Sends actionable notifications (iOS/Android) allowing you to log the dose directly from the notification. "Nags" every 30 minutes if missed.
+
+### 🛡️ Security Monitor
+
+**1. Security Dashboard Status (Template)**
+Aggregates perimeter sensors and weather data.
+- **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/security_monitor.yaml)
+- **Features:**
+  - `CRITICAL_RAIN`: Alerts if windows are open while it's raining.
+  - `INSECURE_AWAY`: Alerts if doors/locks are open while no one is home.
+  - `GARAGE_OPEN`: specific warning for garage doors.
+
+### 🌿 Environment Monitor
+
+**1. Environment Dashboard Status (Template)**
+Aggregates Indoor Air Quality (CO2, PM2.5) and Outdoor data (AQI, Pollen).
+- **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/environment_monitor.yaml)
+- **Features:**
+  - `DANGER`: Hazardous levels (>1500ppm CO2, >150 AQI).
+  - `WARNING`: Poor air quality or High Pollen.
+  - `GOOD`: Healthy ranges.
+
+### ⚡ Energy Monitor
+
+**1. Home Energy Dashboard (Template)**
+Visualizes Grid and Battery status for solar setups.
+- **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/battery_status.yaml)
+- **Features:**
+  - `GRID_OUTAGE`: Running on battery backup.
+  - `PEAK_RATE`: High electricity tariff active.
+  - `EXPORTING`/`IMPORTING`: Real-time grid flow direction.
+
+### 🚗 Traffic & Commute
+
+**1. Commute Dashboard Status (Template)**
+Tracks travel time delay to a destination.
+- **Import:** [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/commute_monitor.yaml)
+- **Features:**
+  - `HEAVY_TRAFFIC`: Significant delays (>15m).
+  - `MODERATE_TRAFFIC`: Noticeable slowdowns.
+  - `CLEAR`: Free-flowing traffic.
 
 ## Installation
 

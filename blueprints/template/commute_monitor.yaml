@@ -1,0 +1,92 @@
+blueprint:
+  name: "Status Banner: Commute Monitor"
+  description: >
+    Tracks travel time to a destination (e.g., Work) using Waze, Here, or Google Maps sensors.
+
+    States:
+    - HEAVY_TRAFFIC: Delay is significant (> 15 mins).
+    - MODERATE_TRAFFIC: Delay is noticeable (> 5 mins).
+    - CLEAR: Traffic is flowing normally.
+  domain: template
+  source_url: https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/commute_monitor.yaml
+  input:
+    travel_sensor:
+      name: Travel Time Sensor
+      description: Entity providing duration (minutes). Supports Waze/Here/Google.
+      selector:
+        entity:
+          domain: sensor
+    normal_duration:
+      name: Normal Duration (Minutes)
+      description: Typical travel time without traffic.
+      default: 30
+      selector:
+        number:
+          min: 1
+          max: 180
+          unit_of_measurement: min
+    threshold_moderate:
+      name: Moderate Delay Threshold (Minutes)
+      description: How many minutes of delay trigger 'Moderate'.
+      default: 5
+      selector:
+        number:
+          min: 1
+          max: 60
+          unit_of_measurement: min
+    threshold_heavy:
+      name: Heavy Delay Threshold (Minutes)
+      description: How many minutes of delay trigger 'Heavy'.
+      default: 15
+      selector:
+        number:
+          min: 1
+          max: 60
+          unit_of_measurement: min
+
+template:
+  - sensor:
+      - name: Commute Dashboard Status
+        state: >
+          {# --- INPUTS --- #}
+          {% set current = states(!input travel_sensor) | float(0) %}
+          {% set normal = !input normal_duration %}
+          {% set delay = current - normal %}
+
+          {% set thresh_mod = !input threshold_moderate %}
+          {% set thresh_hvy = !input threshold_heavy %}
+
+          {# --- LOGIC --- #}
+          {% if delay >= thresh_hvy %}
+            HEAVY_TRAFFIC
+          {% elif delay >= thresh_mod %}
+            MODERATE_TRAFFIC
+          {% else %}
+            CLEAR
+          {% endif %}
+
+        attributes:
+          delay_minutes: >
+            {% set current = states(!input travel_sensor) | float(0) %}
+            {% set normal = !input normal_duration %}
+            {{ (current - normal) | round(0) }}
+          duration_minutes: >
+            {{ states(!input travel_sensor) }}
+          route_name: >
+             {{ state_attr(!input travel_sensor, 'route') | default('Primary Route') }}
+
+          icon_color: >
+            {% if this.state == 'HEAVY_TRAFFIC' %}#F44336
+            {% elif this.state == 'MODERATE_TRAFFIC' %}#FF9800
+            {% else %}#4CAF50
+            {% endif %}
+
+          status_text: >
+            {% set current = states(!input travel_sensor) | float(0) %}
+            {% set normal = !input normal_duration %}
+            {% set delay = (current - normal) | round(0) %}
+            {% if delay > 0 %}
+              +{{ delay }} min delay detected.
+            {% else %}
+              Traffic is flowing freely.
+            {% endif %}

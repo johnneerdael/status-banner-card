@@ -1,0 +1,108 @@
+blueprint:
+  name: "Status Banner: Home Energy Monitor"
+  description: >
+    Visualizes Grid and Battery status for solar/battery setups.
+
+    States:
+    - GRID_OUTAGE: Grid is down, running on battery.
+    - PEAK_RATE: Grid is up but expensive (optional rate sensor).
+    - EXPORTING: Sending excess power to grid.
+    - IMPORTING: Drawing power from grid.
+    - SELF_SUFFICIENT: Covering load with solar/battery exactly.
+  domain: template
+  source_url: https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/battery_status.yaml
+  input:
+    grid_power:
+      name: Grid Power Sensor (W/kW)
+      description: Positive = Importing, Negative = Exporting.
+      selector:
+        entity:
+          domain: sensor
+          device_class: power
+    battery_percentage:
+      name: Battery Percentage (Optional)
+      description: Current state of charge (%).
+      default: []
+      selector:
+        entity:
+          domain: sensor
+          device_class: battery
+          multiple: false
+    grid_state:
+      name: Grid Connection State (Optional)
+      description: Binary sensor indicating if grid is online (on) or offline (off).
+      default: []
+      selector:
+        entity:
+          domain: binary_sensor
+          multiple: false
+    electricity_price:
+      name: Electricity Price (Optional)
+      description: Current price/tariff.
+      default: []
+      selector:
+        entity:
+          domain: sensor
+          multiple: false
+    price_threshold:
+      name: Peak Price Threshold (Optional)
+      description: Price above which is considered "PEAK_RATE".
+      default: 0.30
+      selector:
+        number:
+          min: 0
+          max: 10
+          step: 0.01
+
+template:
+  - sensor:
+      - name: Energy Dashboard Status
+        state: >
+          {# --- INPUTS --- #}
+          {% set grid_pwr = states(!input grid_power) | float(0) %}
+          {% set grid_entity = !input grid_state %}
+          {% set grid_ok = states(grid_entity) == 'on' if grid_entity else true %}
+
+          {% set price_entity = !input electricity_price %}
+          {% set price = states(price_entity) | float(0) if price_entity else 0 %}
+          {% set threshold = !input price_threshold %}
+
+          {# --- LOGIC --- #}
+          {% if not grid_ok %}
+            GRID_OUTAGE
+          {% elif price_entity and price > threshold %}
+            PEAK_RATE
+          {% elif grid_pwr < -10 %}
+            EXPORTING
+          {% elif grid_pwr > 10 %}
+            IMPORTING
+          {% else %}
+            SELF_SUFFICIENT
+          {% endif %}
+
+        attributes:
+          power_flow: >
+            {{ states(!input grid_power) }}
+          battery_level: >
+            {% set bat_entity = !input battery_percentage %}
+            {{ states(bat_entity) if bat_entity else 'N/A' }}
+          status_reason: >
+            {% if this.state == 'GRID_OUTAGE' %}
+              Running on Backup
+            {% elif this.state == 'PEAK_RATE' %}
+              High Tariff Active
+            {% elif this.state == 'EXPORTING' %}
+              Selling to Grid
+            {% elif this.state == 'IMPORTING' %}
+              Buying from Grid
+            {% else %}
+              Balanced
+            {% endif %}
+
+          icon_color: >
+            {% if this.state == 'GRID_OUTAGE' %}#F44336
+            {% elif this.state == 'PEAK_RATE' %}#FF9800
+            {% elif this.state == 'EXPORTING' %}#4CAF50
+            {% elif this.state == 'IMPORTING' %}#2196F3
+            {% else %}#9E9E9E
+            {% endif %}

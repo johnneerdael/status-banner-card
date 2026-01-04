@@ -1,0 +1,111 @@
+blueprint:
+  name: "Status Banner: Environment Monitor"
+  description: >
+    Aggregates Indoor Air Quality (CO2, PM2.5, VOC) and Outdoor Conditions (Pollen, AQI) into a single status.
+
+    States:
+    - DANGER: Hazardous levels detected.
+    - WARNING: Poor air quality or high pollen.
+    - GOOD: All sensors within healthy ranges.
+  domain: template
+  source_url: https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/environment_monitor.yaml
+  input:
+    co2_sensor:
+      name: Indoor CO2 Sensor (Optional)
+      description: Returns ppm (e.g., 400-2000).
+      default: []
+      selector:
+        entity:
+          domain: sensor
+          device_class: co2
+          multiple: true
+    pm25_sensor:
+      name: Indoor PM2.5 Sensor (Optional)
+      description: Returns µg/m³.
+      default: []
+      selector:
+        entity:
+          domain: sensor
+          device_class: pm25
+          multiple: true
+    outdoor_aqi:
+      name: Outdoor AQI (Optional)
+      description: Air Quality Index sensor.
+      default: []
+      selector:
+        entity:
+          domain: sensor
+          device_class: aqi
+          multiple: true
+    pollen_sensor:
+      name: Pollen/Allergy Sensor (Optional)
+      description: "Sensor returning: 'Low', 'Medium', 'High', 'Very High'."
+      default: []
+      selector:
+        entity:
+          domain: sensor
+          multiple: true
+
+template:
+  - sensor:
+      - name: Environment Dashboard Status
+        state: >
+          {# --- FETCH VALUES --- #}
+          {# CO2 Logic: Warning > 1000, Danger > 1500 #}
+          {% set co2_sensors = expand(!input co2_sensor) %}
+          {% set max_co2 = co2_sensors | map(attribute='state') | map('float', 0) | max if co2_sensors else 0 %}
+
+          {# PM2.5 Logic: Warning > 25, Danger > 55 #}
+          {% set pm_sensors = expand(!input pm25_sensor) %}
+          {% set max_pm = pm_sensors | map(attribute='state') | map('float', 0) | max if pm_sensors else 0 %}
+
+          {# AQI Logic: Warning > 100, Danger > 150 #}
+          {% set aqi_sensors = expand(!input outdoor_aqi) %}
+          {% set max_aqi = aqi_sensors | map(attribute='state') | map('float', 0) | max if aqi_sensors else 0 %}
+
+          {# Pollen Logic #}
+          {% set pollen_sensors = expand(!input pollen_sensor) %}
+          {% set pollen_high = pollen_sensors | selectattr('state', 'in', ['High', 'Very High', 'Extreme']) | list | length > 0 %}
+
+          {# --- DETERMINE STATE --- #}
+          {% if max_co2 > 1500 or max_pm > 55 or max_aqi > 150 %}
+            DANGER
+          {% elif max_co2 > 1000 or max_pm > 25 or max_aqi > 100 or pollen_high %}
+            WARNING
+          {% else %}
+            GOOD
+          {% endif %}
+
+        attributes:
+          primary_issue: >
+            {% set co2_sensors = expand(!input co2_sensor) %}
+            {% set max_co2 = co2_sensors | map(attribute='state') | map('float', 0) | max if co2_sensors else 0 %}
+            {% set pm_sensors = expand(!input pm25_sensor) %}
+            {% set max_pm = pm_sensors | map(attribute='state') | map('float', 0) | max if pm_sensors else 0 %}
+            {% set aqi_sensors = expand(!input outdoor_aqi) %}
+            {% set max_aqi = aqi_sensors | map(attribute='state') | map('float', 0) | max if aqi_sensors else 0 %}
+            {% set pollen_sensors = expand(!input pollen_sensor) %}
+            {% set pollen_high = pollen_sensors | selectattr('state', 'in', ['High', 'Very High', 'Extreme']) | list | length > 0 %}
+
+            {% if max_co2 > 1500 %}High CO2 ({{ max_co2 }} ppm)
+            {% elif max_pm > 55 %}High PM2.5 ({{ max_pm }})
+            {% elif max_aqi > 150 %}Poor Outdoor Air (AQI {{ max_aqi }})
+            {% elif max_co2 > 1000 %}Elevated CO2 ({{ max_co2 }} ppm)
+            {% elif pollen_high %}High Pollen Count
+            {% else %}None
+            {% endif %}
+
+          recommendation: >
+            {% if this.state == 'DANGER' %}
+              Open windows immediately or enable air purification on MAX.
+            {% elif this.state == 'WARNING' %}
+              Consider ventilation or filtration.
+            {% else %}
+              Air quality is healthy.
+            {% endif %}
+
+          icon_color: >
+            {% if this.state == 'DANGER' %}#F44336
+            {% elif this.state == 'WARNING' %}#FF9800
+            {% else %}#4CAF50
+            {% endif %}
