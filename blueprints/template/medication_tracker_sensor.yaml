@@ -1,0 +1,65 @@
+blueprint:
+  name: "Status Banner: Medication/Chore Tracker Sensor"
+  description: >
+    Creates a tracker sensor that monitors adherence to a schedule.
+    States: 'TAKEN' (Green), 'DUE' (Orange), 'MISSED' (Red).
+
+    Requires an 'input_button' helper to log the action.
+
+    RECOMMENDED CARD CONFIG:
+    - Entity: This sensor
+    - Rules:
+      - State: TAKEN -> Color: Green (#4CAF50), Icon: mdi:check-circle
+      - State: DUE -> Color: Orange (#FF9800), Icon: mdi:clock-alert
+      - State: MISSED -> Color: Red (#F44336), Icon: mdi:alert-circle
+    - Footer Button:
+      - Action: Call Service (input_button.press) -> Target: Your input_button
+  domain: template
+  source_url: https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/medication_tracker_sensor.yaml
+  input:
+    log_button:
+      name: Log Button
+      description: The input_button helper you press to log the action.
+      selector:
+        entity:
+          domain: input_button
+    schedule_time:
+      name: Due Time
+      description: The time of day when this action becomes 'DUE'.
+      default: "09:00:00"
+      selector:
+        time: {}
+    grace_period:
+      name: Grace Period (Minutes)
+      description: How many minutes after 'Due Time' before it becomes 'MISSED'.
+      default: 60
+      selector:
+        number:
+          min: 0
+          max: 480
+          unit_of_measurement: min
+
+template:
+  - sensor:
+      - name: Tracker Status
+        state: >
+          {% set btn = !input log_button %}
+          {% set due = today_at(!input schedule_time) %}
+          {% set grace = !input grace_period %}
+          {% set last_press = states[btn].last_updated %}
+
+          {# Check if button was pressed TODAY #}
+          {% set taken_today = last_press >= today_at('00:00') %}
+
+          {% if taken_today %}
+            TAKEN
+          {% elif now() > (due + timedelta(minutes=grace)) %}
+            MISSED
+          {% elif now() >= due %}
+            DUE
+          {% else %}
+            PENDING
+          {% endif %}
+        attributes:
+          last_taken: "{{ states(!input log_button) }}"
+          due_at: "{{ today_at(!input schedule_time).isoformat() }}"

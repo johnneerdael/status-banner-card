@@ -99,24 +99,41 @@ A flexible Home Assistant Lovelace card with a distinctive banner design for dis
 
 ## Blueprints
 
-This repository includes ready-to-use Home Assistant blueprints that complement the Lovelace Multi State Entities Card.
+This repository includes ready-to-use Home Assistant blueprints that complement the Lovelace Multi State Entities Card. They are divided into **Template Blueprints** (which create the Dashboard Sensor) and **Automation Blueprints** (which handle logic, notifications, and AI).
 
-### Garbage Collection: Vision Verification
+### 🗑️ Garbage Collection
 
-An AI-powered automation that uses camera snapshots to verify bin placement. Features:
-- **Dual-mode operation** - "Put Out" checks (evening) and "Bring In" checks (afternoon)
-- **Multi-camera support** - Analyze snapshots from multiple cameras
-- **LLM Vision integration** - AI counts bins by color in images
-- **Configurable bin colors** - Map your local trash names to bin colors
-- **Memory system** - Remembers bin status throughout the day
-- **Notifications** - Mobile alerts and optional TTS announcements
+**1. Dashboard Sensor (Template)**
+Creates the unified `sensor.garbage_dashboard_status` used by the card.
+- **Import:** [`blueprints/template/garbage_dashboard_sensor.yaml`](blueprints/template/garbage_dashboard_sensor.yaml)
+- **Features:** Aggregates schedule sensors and AI vision memory into a single state (`PUT_OUT`, `BRING_IN`, `IDLE`).
 
-**Requirements:**
-- [LLM Vision](https://github.com/valentinfrlch/ha-llmvision) integration
-- `input_text` helper for memory storage
-- Camera entities for bin detection
+**2. Vision Verification (Automation)**
+The "Brain" behind the system.
+- **Import:** [`blueprints/automation/garbage_vision_verification.yaml`](blueprints/automation/garbage_vision_verification.yaml)
+- **Features:** Uses LLM Vision to count bins, updates the memory helper, and sends mobile notifications.
 
-**Import:** Copy `blueprints/garbage_vision_verification.yaml` to your Home Assistant's `blueprints/automation/` directory, or use the Import Blueprint feature with the raw file URL.
+### 🏠 Appliance Monitor
+
+**1. Appliance Status Sensor (Template)**
+Smart logic for washers, dryers, and dishwashers.
+- **Import:** [`blueprints/template/appliance_status_sensor.yaml`](blueprints/template/appliance_status_sensor.yaml)
+- **Features:** Translates power usage (W) into states: `Running`, `Finished` (cycle complete), and `Idle`. Handles "finish delays" to avoid false positives during pauses.
+
+**2. Cycle Notifications (Automation)**
+- **Import:** [`blueprints/automation/appliance_notification.yaml`](blueprints/automation/appliance_notification.yaml)
+- **Features:** Triggers when the sensor switches to `Finished`. Sends a mobile alert.
+
+### 💊 Medication & Chore Tracker
+
+**1. Tracker Sensor (Template)**
+Visualizes adherence to a daily schedule.
+- **Import:** [`blueprints/template/medication_tracker_sensor.yaml`](blueprints/template/medication_tracker_sensor.yaml)
+- **Features:** Tracks `TAKEN`, `DUE`, and `MISSED` states based on a schedule time and an input button.
+
+**2. Reminder System (Automation)**
+- **Import:** [`blueprints/automation/medication_reminder.yaml`](blueprints/automation/medication_reminder.yaml)
+- **Features:** Sends actionable notifications (iOS/Android) allowing you to log the dose directly from the notification. "Nags" every 30 minutes if missed.
 
 ## Installation
 

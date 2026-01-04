@@ -1,0 +1,88 @@
+blueprint:
+  name: "Status Banner: Appliance Monitor Sensor"
+  description: >
+    Creates a smart appliance sensor based on power usage.
+    Detects 'Running', 'Finished' (cycle complete), and 'Idle' states.
+
+    RECOMMENDED CARD CONFIG:
+    - Entity: This sensor
+    - Rules:
+      - State: Running -> Title: RUNNING, Color: Blue (#2196F3)
+      - State: Finished -> Title: CYCLE COMPLETE, Color: Green (#4CAF50)
+      - State: Idle -> Title: IDLE, Color: Grey (#9E9E9E)
+  domain: template
+  source_url: https://github.com/johnneerdael/lovelace-multi-state-entities-card/blob/main/blueprints/template/appliance_status_sensor.yaml
+  input:
+    power_sensor:
+      name: Power Sensor
+      description: The sensor measuring power consumption (W).
+      selector:
+        entity:
+          domain: sensor
+          device_class: power
+    threshold_running:
+      name: Running Threshold (W)
+      description: Above this wattage, the appliance is considered 'Running'.
+      default: 10
+      selector:
+        number:
+          min: 0
+          max: 5000
+          unit_of_measurement: W
+    threshold_finished:
+      name: Finished Threshold (W)
+      description: Below this wattage, the appliance is considered 'Finished' (if it was previously running).
+      default: 5
+      selector:
+        number:
+          min: 0
+          max: 100
+          unit_of_measurement: W
+    finish_delay:
+      name: Finish Detection Delay
+      description: How long power must stay low before marking as 'Finished' (avoids pauses in cycle).
+      default: 2
+      selector:
+        number:
+          min: 0
+          max: 60
+          unit_of_measurement: min
+
+template:
+  - trigger:
+      - platform: numeric_state
+        entity_id: !input power_sensor
+        above: !input threshold_running
+        id: "start"
+      - platform: numeric_state
+        entity_id: !input power_sensor
+        below: !input threshold_finished
+        for:
+          minutes: !input finish_delay
+        id: "finish"
+    sensor:
+      - name: Appliance Status
+        state: >
+          {% if trigger.id == 'start' %}
+            Running
+          {% elif trigger.id == 'finish' and states(this.entity_id) == 'Running' %}
+            Finished
+          {% elif trigger.id == 'finish' %}
+            Idle
+          {% else %}
+            {{ states(this.entity_id) }}
+          {% endif %}
+        attributes:
+          power: "{{ states(!input power_sensor) }}"
+          last_finished: >
+            {% if trigger.id == 'finish' and states(this.entity_id) == 'Running' %}
+              {{ now().isoformat() }}
+            {% else %}
+              {{ state_attr(this.entity_id, 'last_finished') }}
+            {% endif %}
+          cycle_duration: >
+             {% if trigger.id == 'finish' and states(this.entity_id) == 'Running' %}
+               {{ (as_timestamp(now()) - as_timestamp(states[this.entity_id].last_changed)) | int }}
+             {% else %}
+               {{ state_attr(this.entity_id, 'cycle_duration') }}
+             {% endif %}
