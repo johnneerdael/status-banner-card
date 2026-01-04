@@ -1,7 +1,0 @@
-repository: "johnneerdael/lovelace-multi-state-entities-card"
-
-# Fixes the "Liquid syntax error" warnings
-# This tells Jekyll to ignore your Home Assistant blueprints/automations
-exclude:
-  - blueprints/
-  - AGENTS.md                     
