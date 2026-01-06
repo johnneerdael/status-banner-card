@@ -10,10 +10,7 @@ export default defineConfig({
   appearance: "dark",
 
   head: [
-    [
-      "link",
-      { rel: "icon", href: "/lovelace-multi-state-entities-card/favicon.ico" },
-    ],
+    ["link", { rel: "icon", href: "/favicon.ico" }],
     ["meta", { name: "theme-color", content: "#41b883" }],
     ["meta", { name: "og:type", content: "website" }],
     [
