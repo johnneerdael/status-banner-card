@@ -1,15 +1,22 @@
-import { LitElement, html, css, TemplateResult, CSSResultGroup, nothing } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import {
+  LitElement,
+  html,
+  css,
+  TemplateResult,
+  CSSResultGroup,
+  nothing,
+} from "lit";
+import { customElement, property, state } from "lit/decorators.js";
 import {
   StatusBannerCardConfig,
   StateRule,
   HomeAssistantFixed,
   DisplayConfig,
   ButtonAction,
-} from './types';
-import { DEFAULT_CONFIG } from './constants';
+} from "./types";
+import { DEFAULT_CONFIG } from "./constants";
 
-@customElement('lovelace-multi-state-entities-card-editor')
+@customElement("lovelace-multi-state-entities-card-editor")
 export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
   @property({ attribute: false })
   public hass!: HomeAssistantFixed;
@@ -62,9 +69,10 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
 
         <ha-entity-picker
           .hass=${this.hass}
-          .value=${this._config.entity || ''}
-          .label=${'Primary Entity (State Source)'}
-          @value-changed=${(e: CustomEvent) => this._valueChanged('entity', e.detail.value)}
+          .value=${this._config.entity || ""}
+          .label=${"Primary Entity (State Source)"}
+          @value-changed=${(e: CustomEvent) =>
+            this._valueChanged("entity", e.detail.value)}
           allow-custom-entity
         ></ha-entity-picker>
       </div>
@@ -85,7 +93,8 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
           <span>State Rules</span>
         </div>
         <p class="section-description">
-          Rules define what becomes the <strong>Title</strong> and <strong>Subtitle</strong> based on state.
+          Rules define what becomes the <strong>Title</strong> and
+          <strong>Subtitle</strong> based on state.
         </p>
 
         <div class="rules-list">
@@ -104,18 +113,18 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
     const isExpanded = this._expandedRule === index;
 
     return html`
-      <div class="rule-card ${isExpanded ? 'expanded' : ''}">
+      <div class="rule-card ${isExpanded ? "expanded" : ""}">
         <div class="rule-header" @click=${() => this._toggleRule(index)}>
           <div class="rule-summary">
-            <span class="rule-state">${rule.state || 'Any State'}</span>
-            <span class="rule-title">${rule.title || 'No title'}</span>
+            <span class="rule-state">${rule.state || "Any State"}</span>
+            <span class="rule-title">${rule.title || "No title"}</span>
           </div>
           <div class="rule-actions">
             <ha-icon-button
-              .path=${'M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z'}
+              .path=${"M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"}
               @click=${(e: Event) => this._removeRule(e, index)}
             ></ha-icon-button>
-            <ha-icon icon="mdi:chevron-${isExpanded ? 'up' : 'down'}"></ha-icon>
+            <ha-icon icon="mdi:chevron-${isExpanded ? "up" : "down"}"></ha-icon>
           </div>
         </div>
 
@@ -128,45 +137,66 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
     return html`
       <div class="rule-details">
         <ha-textfield
-          .value=${rule.state || ''}
-          .label=${'Rule Match: State Value (exact or /regex/)'}
+          .value=${rule.state || ""}
+          .label=${"Rule Match: State Value (exact or /regex/)"}
           @input=${(e: Event) =>
-            this._updateRule(index, 'state', (e.target as HTMLInputElement).value)}
+            this._updateRule(
+              index,
+              "state",
+              (e.target as HTMLInputElement).value,
+            )}
         ></ha-textfield>
 
         <ha-textfield
-          .value=${rule.title || ''}
-          .label=${'Display: Title (supports {{ templates }})'}
+          .value=${rule.title || ""}
+          .label=${"Display: Title (supports {{ templates }})"}
           @input=${(e: Event) =>
-            this._updateRule(index, 'title', (e.target as HTMLInputElement).value)}
+            this._updateRule(
+              index,
+              "title",
+              (e.target as HTMLInputElement).value,
+            )}
         ></ha-textfield>
 
         <ha-textfield
-          .value=${rule.title_font_size || ''}
-          .label=${'Display: Title Font Size (e.g., 1.5rem, 24px)'}
+          .value=${rule.title_font_size || ""}
+          .label=${"Display: Title Font Size (e.g., 1.5rem, 24px)"}
           @input=${(e: Event) =>
-            this._updateRule(index, 'title_font_size', (e.target as HTMLInputElement).value)}
+            this._updateRule(
+              index,
+              "title_font_size",
+              (e.target as HTMLInputElement).value,
+            )}
         ></ha-textfield>
 
         <ha-textfield
-          .value=${rule.subtitle || ''}
-          .label=${'Display: Subtitle (supports {{ templates }})'}
+          .value=${rule.subtitle || ""}
+          .label=${"Display: Subtitle (supports {{ templates }})"}
           @input=${(e: Event) =>
-            this._updateRule(index, 'subtitle', (e.target as HTMLInputElement).value)}
+            this._updateRule(
+              index,
+              "subtitle",
+              (e.target as HTMLInputElement).value,
+            )}
         ></ha-textfield>
 
         <ha-textfield
-          .value=${rule.subtitle_font_size || ''}
-          .label=${'Display: Subtitle Font Size (e.g., 1rem, 16px)'}
+          .value=${rule.subtitle_font_size || ""}
+          .label=${"Display: Subtitle Font Size (e.g., 1rem, 16px)"}
           @input=${(e: Event) =>
-            this._updateRule(index, 'subtitle_font_size', (e.target as HTMLInputElement).value)}
+            this._updateRule(
+              index,
+              "subtitle_font_size",
+              (e.target as HTMLInputElement).value,
+            )}
         ></ha-textfield>
 
         <ha-icon-picker
           .hass=${this.hass}
-          .value=${rule.icon || ''}
-          .label=${'Icon'}
-          @value-changed=${(e: CustomEvent) => this._updateRule(index, 'icon', e.detail.value)}
+          .value=${rule.icon || ""}
+          .label=${"Icon"}
+          @value-changed=${(e: CustomEvent) =>
+            this._updateRule(index, "icon", e.detail.value)}
         ></ha-icon-picker>
 
         <div class="color-input">
@@ -174,24 +204,36 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
           <div class="color-input-row">
             <input
               type="color"
-              .value=${rule.color?.startsWith('#') ? rule.color : '#9E9E9E'}
+              .value=${rule.color?.startsWith("#") ? rule.color : "#9E9E9E"}
               @input=${(e: Event) =>
-                this._updateRule(index, 'color', (e.target as HTMLInputElement).value)}
+                this._updateRule(
+                  index,
+                  "color",
+                  (e.target as HTMLInputElement).value,
+                )}
             />
             <ha-textfield
-              .value=${rule.color || ''}
-              .label=${'Color or template'}
+              .value=${rule.color || ""}
+              .label=${"Color or template"}
               @input=${(e: Event) =>
-                this._updateRule(index, 'color', (e.target as HTMLInputElement).value)}
+                this._updateRule(
+                  index,
+                  "color",
+                  (e.target as HTMLInputElement).value,
+                )}
             ></ha-textfield>
           </div>
         </div>
 
         <ha-textfield
-          .value=${rule.status_text || ''}
-          .label=${'Status Text (supports {{ templates }})'}
+          .value=${rule.status_text || ""}
+          .label=${"Status Text (supports {{ templates }})"}
           @input=${(e: Event) =>
-            this._updateRule(index, 'status_text', (e.target as HTMLInputElement).value)}
+            this._updateRule(
+              index,
+              "status_text",
+              (e.target as HTMLInputElement).value,
+            )}
         ></ha-textfield>
       </div>
     `;
@@ -213,41 +255,53 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
         <p class="section-description">Used when no rules match</p>
 
         <ha-textfield
-          .value=${defaultConfig.title ?? ''}
-          .label=${'Default Title'}
+          .value=${defaultConfig.title ?? ""}
+          .label=${"Default Title"}
           @input=${(e: Event) =>
-            this._updateDefault('title', (e.target as HTMLInputElement).value)}
+            this._updateDefault("title", (e.target as HTMLInputElement).value)}
         ></ha-textfield>
 
         <ha-textfield
-          .value=${defaultConfig.subtitle ?? ''}
-          .label=${'Default Subtitle'}
+          .value=${defaultConfig.subtitle ?? ""}
+          .label=${"Default Subtitle"}
           @input=${(e: Event) =>
-            this._updateDefault('subtitle', (e.target as HTMLInputElement).value)}
+            this._updateDefault(
+              "subtitle",
+              (e.target as HTMLInputElement).value,
+            )}
         ></ha-textfield>
 
         <ha-icon-picker
           .hass=${this.hass}
-          .value=${defaultConfig.icon ?? ''}
-          .label=${'Default Icon'}
-          @value-changed=${(e: CustomEvent) => this._updateDefault('icon', e.detail.value)}
+          .value=${defaultConfig.icon ?? ""}
+          .label=${"Default Icon"}
+          @value-changed=${(e: CustomEvent) =>
+            this._updateDefault("icon", e.detail.value)}
         ></ha-icon-picker>
 
         <div class="color-input">
           <label>Default Color</label>
           <input
             type="color"
-            .value=${defaultConfig.color?.startsWith('#') ? defaultConfig.color : '#9E9E9E'}
+            .value=${defaultConfig.color?.startsWith("#")
+              ? defaultConfig.color
+              : "#9E9E9E"}
             @input=${(e: Event) =>
-              this._updateDefault('color', (e.target as HTMLInputElement).value)}
+              this._updateDefault(
+                "color",
+                (e.target as HTMLInputElement).value,
+              )}
           />
         </div>
 
         <ha-textfield
-          .value=${defaultConfig.status_text ?? ''}
-          .label=${'Default Status Text'}
+          .value=${defaultConfig.status_text ?? ""}
+          .label=${"Default Status Text"}
           @input=${(e: Event) =>
-            this._updateDefault('status_text', (e.target as HTMLInputElement).value)}
+            this._updateDefault(
+              "status_text",
+              (e.target as HTMLInputElement).value,
+            )}
         ></ha-textfield>
       </div>
     `;
@@ -274,22 +328,29 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
               <div class="color-map-item">
                 <ha-textfield
                   .value=${key}
-                  .label=${'Key'}
+                  .label=${"Key"}
                   @input=${(e: Event) =>
-                    this._updateColorMapKey(key, (e.target as HTMLInputElement).value, value)}
+                    this._updateColorMapKey(
+                      key,
+                      (e.target as HTMLInputElement).value,
+                      value,
+                    )}
                 ></ha-textfield>
                 <input
                   type="color"
                   .value=${value}
                   @input=${(e: Event) =>
-                    this._updateColorMap(key, (e.target as HTMLInputElement).value)}
+                    this._updateColorMap(
+                      key,
+                      (e.target as HTMLInputElement).value,
+                    )}
                 />
                 <ha-icon-button
-                  .path=${'M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z'}
+                  .path=${"M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"}
                   @click=${() => this._removeColorMap(key)}
                 ></ha-icon-button>
               </div>
-            `
+            `,
           )}
         </div>
 
@@ -307,19 +368,19 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
 
   private _renderFooterSection(): TemplateResult {
     const buttonAction = this._config.button_actions?.[0];
-    const buttonType = buttonAction?.type || 'service';
+    const buttonType = buttonAction?.type || "service";
     const lastExecutionAlignments = [
-      { value: 'left', label: 'Left' },
-      { value: 'right', label: 'Right' },
+      { value: "left", label: "Left" },
+      { value: "right", label: "Right" },
     ];
 
     const buttonTypes = [
-      { value: 'service', label: 'Service' },
-      { value: 'toggle', label: 'Toggle' },
-      { value: 'more-info', label: 'More Info' },
-      { value: 'navigate', label: 'Navigate' },
-      { value: 'url', label: 'URL' },
-      { value: 'assist', label: 'Assist' },
+      { value: "service", label: "Service" },
+      { value: "toggle", label: "Toggle" },
+      { value: "more-info", label: "More Info" },
+      { value: "navigate", label: "Navigate" },
+      { value: "url", label: "URL" },
+      { value: "assist", label: "Assist" },
     ];
 
     return html`
@@ -334,7 +395,10 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
           <ha-switch
             .checked=${this._config.show_footer !== false}
             @change=${(e: Event) =>
-              this._valueChanged('show_footer', (e.target as HTMLInputElement).checked)}
+              this._valueChanged(
+                "show_footer",
+                (e.target as HTMLInputElement).checked,
+              )}
           ></ha-switch>
         </div>
 
@@ -344,41 +408,50 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
 
               <ha-entity-picker
                 .hass=${this.hass}
-                .value=${this._config.timestamp_entity || ''}
-                .label=${'Last Execution Entity (Timestamp)'}
+                .value=${this._config.timestamp_entity || ""}
+                .label=${"Last Execution Entity (Timestamp)"}
                 @value-changed=${(e: CustomEvent) =>
-                  this._valueChanged('timestamp_entity', e.detail.value)}
+                  this._valueChanged("timestamp_entity", e.detail.value)}
                 allow-custom-entity
               ></ha-entity-picker>
 
               <ha-select
-                .value=${this._config.last_execution_alignment || 'left'}
-                .label=${'Alignment'}
+                .value=${this._config.last_execution_alignment || "left"}
+                .label=${"Alignment"}
                 @selected=${(e: CustomEvent) =>
-                  this._valueChanged('last_execution_alignment', (e.target as any).value)}
+                  this._valueChanged(
+                    "last_execution_alignment",
+                    (e.target as any).value,
+                  )}
                 @closed=${(e: Event) => e.stopPropagation()}
               >
                 ${lastExecutionAlignments.map(
                   (align) => html`
-                    <mwc-list-item .value=${align.value}>${align.label}</mwc-list-item>
-                  `
+                    <mwc-list-item .value=${align.value}
+                      >${align.label}</mwc-list-item
+                    >
+                  `,
                 )}
               </ha-select>
 
               <div class="subsection-header">Actionable Button</div>
 
               <ha-textfield
-                .value=${buttonAction?.label || ''}
-                .label=${'Button Label'}
+                .value=${buttonAction?.label || ""}
+                .label=${"Button Label"}
                 @input=${(e: Event) =>
-                  this._updateButtonAction('label', (e.target as HTMLInputElement).value)}
+                  this._updateButtonAction(
+                    "label",
+                    (e.target as HTMLInputElement).value,
+                  )}
               ></ha-textfield>
 
               <ha-icon-picker
                 .hass=${this.hass}
-                .value=${buttonAction?.icon || ''}
-                .label=${'Button Icon'}
-                @value-changed=${(e: CustomEvent) => this._updateButtonAction('icon', e.detail.value)}
+                .value=${buttonAction?.icon || ""}
+                .label=${"Button Icon"}
+                @value-changed=${(e: CustomEvent) =>
+                  this._updateButtonAction("icon", e.detail.value)}
               ></ha-icon-picker>
 
               <div class="color-input">
@@ -386,24 +459,28 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
                 <div class="color-input-row">
                   <input
                     type="color"
-                    .value=${buttonAction?.color || '#9E9E9E'}
-                    @input=${(e: Event) =>
-                      this._updateButtonAction('color', (e.target as HTMLInputElement).value)}
-                  />
-                  <ha-textfield
-                    .value=${buttonAction?.color || ''}
-                    .placeholder=${'Default (Accent)'}
+                    .value=${buttonAction?.color || "#9E9E9E"}
                     @input=${(e: Event) =>
                       this._updateButtonAction(
-                        'color',
-                        (e.target as HTMLInputElement).value || undefined
+                        "color",
+                        (e.target as HTMLInputElement).value,
+                      )}
+                  />
+                  <ha-textfield
+                    .value=${buttonAction?.color || ""}
+                    .placeholder=${"Default (Accent)"}
+                    @input=${(e: Event) =>
+                      this._updateButtonAction(
+                        "color",
+                        (e.target as HTMLInputElement).value || undefined,
                       )}
                   ></ha-textfield>
                   ${buttonAction?.color
                     ? html`
                         <ha-icon-button
-                          .path=${'M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z'}
-                          @click=${() => this._updateButtonAction('color', undefined)}
+                          .path=${"M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"}
+                          @click=${() =>
+                            this._updateButtonAction("color", undefined)}
                         ></ha-icon-button>
                       `
                     : nothing}
@@ -412,59 +489,69 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
 
               <ha-select
                 .value=${buttonType}
-                .label=${'Button Type'}
+                .label=${"Button Type"}
                 @selected=${(e: CustomEvent) =>
-                  this._updateButtonAction('type', (e.target as any).value)}
+                  this._updateButtonAction("type", (e.target as any).value)}
                 @closed=${(e: Event) => e.stopPropagation()}
               >
                 ${buttonTypes.map(
                   (type) => html`
-                    <mwc-list-item .value=${type.value}>${type.label}</mwc-list-item>
-                  `
+                    <mwc-list-item .value=${type.value}
+                      >${type.label}</mwc-list-item
+                    >
+                  `,
                 )}
               </ha-select>
 
-              ${buttonType === 'service'
+              ${buttonType === "service"
                 ? html`
                     <ha-textfield
-                      .value=${buttonAction?.service || ''}
-                      .label=${'Button Service (e.g. script.run)'}
+                      .value=${buttonAction?.service || ""}
+                      .label=${"Button Service (e.g. script.run)"}
                       @input=${(e: Event) =>
-                        this._updateButtonAction('service', (e.target as HTMLInputElement).value)}
-                    ></ha-textfield>
-                  `
-                : nothing}
-              ${buttonType === 'url'
-                ? html`
-                    <ha-textfield
-                      .value=${(buttonAction?.tap_action as any)?.url_path || ''}
-                      .label=${'URL'}
-                      @input=${(e: Event) =>
-                        this._updateButtonTapAction('url_path', (e.target as HTMLInputElement).value)}
-                    ></ha-textfield>
-                  `
-                : nothing}
-              ${buttonType === 'navigate'
-                ? html`
-                    <ha-textfield
-                      .value=${(buttonAction?.tap_action as any)?.navigation_path || ''}
-                      .label=${'Navigation Path'}
-                      @input=${(e: Event) =>
-                        this._updateButtonTapAction(
-                          'navigation_path',
-                          (e.target as HTMLInputElement).value
+                        this._updateButtonAction(
+                          "service",
+                          (e.target as HTMLInputElement).value,
                         )}
                     ></ha-textfield>
                   `
                 : nothing}
-              ${['service', 'toggle', 'more-info'].includes(buttonType)
+              ${buttonType === "url"
+                ? html`
+                    <ha-textfield
+                      .value=${(buttonAction?.tap_action as any)?.url_path ||
+                      ""}
+                      .label=${"URL"}
+                      @input=${(e: Event) =>
+                        this._updateButtonTapAction(
+                          "url_path",
+                          (e.target as HTMLInputElement).value,
+                        )}
+                    ></ha-textfield>
+                  `
+                : nothing}
+              ${buttonType === "navigate"
+                ? html`
+                    <ha-textfield
+                      .value=${(buttonAction?.tap_action as any)
+                        ?.navigation_path || ""}
+                      .label=${"Navigation Path"}
+                      @input=${(e: Event) =>
+                        this._updateButtonTapAction(
+                          "navigation_path",
+                          (e.target as HTMLInputElement).value,
+                        )}
+                    ></ha-textfield>
+                  `
+                : nothing}
+              ${["service", "toggle", "more-info"].includes(buttonType)
                 ? html`
                     <ha-entity-picker
                       .hass=${this.hass}
-                      .value=${buttonAction?.entity || ''}
-                      .label=${'Button Entity'}
+                      .value=${buttonAction?.entity || ""}
+                      .label=${"Button Entity"}
                       @value-changed=${(e: CustomEvent) =>
-                        this._updateButtonAction('entity', e.detail.value)}
+                        this._updateButtonAction("entity", e.detail.value)}
                       allow-custom-entity
                     ></ha-entity-picker>
                   `
@@ -495,7 +582,10 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
           <ha-switch
             .checked=${this._config.show_accent !== false}
             @change=${(e: Event) =>
-              this._valueChanged('show_accent', (e.target as HTMLInputElement).checked)}
+              this._valueChanged(
+                "show_accent",
+                (e.target as HTMLInputElement).checked,
+              )}
           ></ha-switch>
         </div>
 
@@ -506,7 +596,10 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
                 <ha-switch
                   .checked=${this._config.show_pattern !== false}
                   @change=${(e: Event) =>
-                    this._valueChanged('show_pattern', (e.target as HTMLInputElement).checked)}
+                    this._valueChanged(
+                      "show_pattern",
+                      (e.target as HTMLInputElement).checked,
+                    )}
                 ></ha-switch>
               </div>
 
@@ -515,11 +608,11 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
                     <ha-textfield
                       type="number"
                       .value=${String(this._config.pattern_size ?? 20)}
-                      .label=${'Stripe Width (px)'}
+                      .label=${"Stripe Width (px)"}
                       @input=${(e: Event) =>
                         this._valueChanged(
-                          'pattern_size',
-                          Number((e.target as HTMLInputElement).value) || 20
+                          "pattern_size",
+                          Number((e.target as HTMLInputElement).value) || 20,
                         )}
                     ></ha-textfield>
                   `
@@ -536,8 +629,8 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
                     .value=${String(accentWidth)}
                     @input=${(e: Event) =>
                       this._valueChanged(
-                        'accent_width',
-                        Number((e.target as HTMLInputElement).value)
+                        "accent_width",
+                        Number((e.target as HTMLInputElement).value),
                       )}
                   />
                   <span class="slider-label">100%</span>
@@ -555,34 +648,21 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
                     .value=${String(accentHeight)}
                     @input=${(e: Event) =>
                       this._valueChanged(
-                        'accent_height',
-                        Number((e.target as HTMLInputElement).value)
+                        "accent_height",
+                        Number((e.target as HTMLInputElement).value),
                       )}
                   />
                   <span class="slider-label">150%</span>
                 </div>
               </div>
 
-              <div class="subsection-header">Triangle Shape</div>
+              <div class="subsection-header">Triangle Corner</div>
 
               <ha-select
-                .value=${this._config.accent_start || 'bottom-left'}
-                .label=${'Triangle Edge 1'}
+                .value=${this._config.accent_corner || "bottom-left"}
+                .label=${"Corner"}
                 @selected=${(e: CustomEvent) =>
-                  this._valueChanged('accent_start', (e.target as any).value)}
-                @closed=${(e: Event) => e.stopPropagation()}
-              >
-                <mwc-list-item value="top-left">Top Left</mwc-list-item>
-                <mwc-list-item value="top-right">Top Right</mwc-list-item>
-                <mwc-list-item value="bottom-left">Bottom Left</mwc-list-item>
-                <mwc-list-item value="bottom-right">Bottom Right</mwc-list-item>
-              </ha-select>
-
-              <ha-select
-                .value=${this._config.accent_end || 'top-right'}
-                .label=${'Triangle Edge 2'}
-                @selected=${(e: CustomEvent) =>
-                  this._valueChanged('accent_end', (e.target as any).value)}
+                  this._valueChanged("accent_corner", (e.target as any).value)}
                 @closed=${(e: Event) => e.stopPropagation()}
               >
                 <mwc-list-item value="top-left">Top Left</mwc-list-item>
@@ -595,33 +675,45 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
 
         <div class="subsection-header">Timestamp Settings</div>
         <ha-textfield
-          .value=${this._config.timestamp_attribute || 'last_triggered'}
-          .label=${'Timestamp Attribute'}
+          .value=${this._config.timestamp_attribute || "last_triggered"}
+          .label=${"Timestamp Attribute"}
           @input=${(e: Event) =>
-            this._valueChanged('timestamp_attribute', (e.target as HTMLInputElement).value)}
+            this._valueChanged(
+              "timestamp_attribute",
+              (e.target as HTMLInputElement).value,
+            )}
         ></ha-textfield>
 
         <div class="subsection-header">Dimensions</div>
 
         <ha-textfield
-          .value=${this._config.header_height || '120px'}
-          .label=${'Header Height'}
+          .value=${this._config.header_height || "120px"}
+          .label=${"Header Height"}
           @input=${(e: Event) =>
-            this._valueChanged('header_height', (e.target as HTMLInputElement).value)}
+            this._valueChanged(
+              "header_height",
+              (e.target as HTMLInputElement).value,
+            )}
         ></ha-textfield>
 
         <ha-textfield
-          .value=${this._config.icon_size || '54px'}
-          .label=${'Icon Size'}
+          .value=${this._config.icon_size || "54px"}
+          .label=${"Icon Size"}
           @input=${(e: Event) =>
-            this._valueChanged('icon_size', (e.target as HTMLInputElement).value)}
+            this._valueChanged(
+              "icon_size",
+              (e.target as HTMLInputElement).value,
+            )}
         ></ha-textfield>
 
         <ha-textfield
-          .value=${this._config.border_radius || '16px'}
-          .label=${'Border Radius'}
+          .value=${this._config.border_radius || "16px"}
+          .label=${"Border Radius"}
           @input=${(e: Event) =>
-            this._valueChanged('border_radius', (e.target as HTMLInputElement).value)}
+            this._valueChanged(
+              "border_radius",
+              (e.target as HTMLInputElement).value,
+            )}
         ></ha-textfield>
       </div>
     `;
@@ -633,9 +725,9 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
 
   private _renderGlobalDisplaySection(): TemplateResult {
     const alignments = [
-      { value: 'left', label: 'Left' },
-      { value: 'center', label: 'Center' },
-      { value: 'right', label: 'Right' },
+      { value: "left", label: "Left" },
+      { value: "center", label: "Center" },
+      { value: "right", label: "Right" },
     ];
 
     return html`
@@ -648,70 +740,86 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
         <div class="subsection-header">Alignment</div>
 
         <ha-select
-          .value=${this._config.title_alignment || 'right'}
-          .label=${'Title Alignment'}
+          .value=${this._config.title_alignment || "right"}
+          .label=${"Title Alignment"}
           @selected=${(e: CustomEvent) =>
-            this._valueChanged('title_alignment', (e.target as any).value)}
+            this._valueChanged("title_alignment", (e.target as any).value)}
           @closed=${(e: Event) => e.stopPropagation()}
         >
           ${alignments.map(
             (align) => html`
-              <mwc-list-item .value=${align.value}>${align.label}</mwc-list-item>
-            `
+              <mwc-list-item .value=${align.value}
+                >${align.label}</mwc-list-item
+              >
+            `,
           )}
         </ha-select>
 
         <ha-select
-          .value=${this._config.subtitle_alignment || this._config.title_alignment || 'right'}
-          .label=${'Subtitle Alignment'}
+          .value=${this._config.subtitle_alignment ||
+          this._config.title_alignment ||
+          "right"}
+          .label=${"Subtitle Alignment"}
           @selected=${(e: CustomEvent) =>
-            this._valueChanged('subtitle_alignment', (e.target as any).value)}
+            this._valueChanged("subtitle_alignment", (e.target as any).value)}
           @closed=${(e: Event) => e.stopPropagation()}
         >
           ${alignments.map(
             (align) => html`
-              <mwc-list-item .value=${align.value}>${align.label}</mwc-list-item>
-            `
+              <mwc-list-item .value=${align.value}
+                >${align.label}</mwc-list-item
+              >
+            `,
           )}
         </ha-select>
 
         <ha-select
-          .value=${this._config.icon_alignment || 'right'}
-          .label=${'Icon Alignment'}
+          .value=${this._config.icon_alignment || "right"}
+          .label=${"Icon Alignment"}
           @selected=${(e: CustomEvent) =>
-            this._valueChanged('icon_alignment', (e.target as any).value)}
+            this._valueChanged("icon_alignment", (e.target as any).value)}
           @closed=${(e: Event) => e.stopPropagation()}
         >
           ${alignments.map(
             (align) => html`
-              <mwc-list-item .value=${align.value}>${align.label}</mwc-list-item>
-            `
+              <mwc-list-item .value=${align.value}
+                >${align.label}</mwc-list-item
+              >
+            `,
           )}
         </ha-select>
 
         <div class="subsection-header">Text Colors</div>
-        <p class="section-description">Override text colors (useful when text overlaps accent)</p>
+        <p class="section-description">
+          Override text colors (useful when text overlaps accent)
+        </p>
 
         <div class="color-input">
           <label>Title Color</label>
           <div class="color-input-row">
             <input
               type="color"
-              .value=${this._config.title_color || '#212121'}
+              .value=${this._config.title_color || "#212121"}
               @input=${(e: Event) =>
-                this._valueChanged('title_color', (e.target as HTMLInputElement).value)}
+                this._valueChanged(
+                  "title_color",
+                  (e.target as HTMLInputElement).value,
+                )}
             />
             <ha-textfield
-              .value=${this._config.title_color || ''}
-              .placeholder=${'Default (theme)'}
+              .value=${this._config.title_color || ""}
+              .placeholder=${"Default (theme)"}
               @input=${(e: Event) =>
-                this._valueChanged('title_color', (e.target as HTMLInputElement).value || undefined)}
+                this._valueChanged(
+                  "title_color",
+                  (e.target as HTMLInputElement).value || undefined,
+                )}
             ></ha-textfield>
             ${this._config.title_color
               ? html`
                   <ha-icon-button
-                    .path=${'M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z'}
-                    @click=${() => this._valueChanged('title_color', undefined)}
+                    .path=${"M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"}
+                    @click=${() => this._valueChanged("title_color", undefined)}
                   ></ha-icon-button>
                 `
               : nothing}
@@ -723,21 +831,28 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
           <div class="color-input-row">
             <input
               type="color"
-              .value=${this._config.subtitle_color || '#727272'}
+              .value=${this._config.subtitle_color || "#727272"}
               @input=${(e: Event) =>
-                this._valueChanged('subtitle_color', (e.target as HTMLInputElement).value)}
+                this._valueChanged(
+                  "subtitle_color",
+                  (e.target as HTMLInputElement).value,
+                )}
             />
             <ha-textfield
-              .value=${this._config.subtitle_color || ''}
-              .placeholder=${'Default (theme)'}
+              .value=${this._config.subtitle_color || ""}
+              .placeholder=${"Default (theme)"}
               @input=${(e: Event) =>
-                this._valueChanged('subtitle_color', (e.target as HTMLInputElement).value || undefined)}
+                this._valueChanged(
+                  "subtitle_color",
+                  (e.target as HTMLInputElement).value || undefined,
+                )}
             ></ha-textfield>
             ${this._config.subtitle_color
               ? html`
                   <ha-icon-button
-                    .path=${'M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z'}
-                    @click=${() => this._valueChanged('subtitle_color', undefined)}
+                    .path=${"M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"}
+                    @click=${() =>
+                      this._valueChanged("subtitle_color", undefined)}
                   ></ha-icon-button>
                 `
               : nothing}
@@ -749,21 +864,27 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
           <div class="color-input-row">
             <input
               type="color"
-              .value=${this._config.icon_color || '#9E9E9E'}
+              .value=${this._config.icon_color || "#9E9E9E"}
               @input=${(e: Event) =>
-                this._valueChanged('icon_color', (e.target as HTMLInputElement).value)}
+                this._valueChanged(
+                  "icon_color",
+                  (e.target as HTMLInputElement).value,
+                )}
             />
             <ha-textfield
-              .value=${this._config.icon_color || ''}
-              .placeholder=${'Default (accent color)'}
+              .value=${this._config.icon_color || ""}
+              .placeholder=${"Default (accent color)"}
               @input=${(e: Event) =>
-                this._valueChanged('icon_color', (e.target as HTMLInputElement).value || undefined)}
+                this._valueChanged(
+                  "icon_color",
+                  (e.target as HTMLInputElement).value || undefined,
+                )}
             ></ha-textfield>
             ${this._config.icon_color
               ? html`
                   <ha-icon-button
-                    .path=${'M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z'}
-                    @click=${() => this._valueChanged('icon_color', undefined)}
+                    .path=${"M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"}
+                    @click=${() => this._valueChanged("icon_color", undefined)}
                   ></ha-icon-button>
                 `
               : nothing}
@@ -792,35 +913,44 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
           <ha-switch
             .checked=${this._config.show_status !== false}
             @change=${(e: Event) =>
-              this._valueChanged('show_status', (e.target as HTMLInputElement).checked)}
+              this._valueChanged(
+                "show_status",
+                (e.target as HTMLInputElement).checked,
+              )}
           ></ha-switch>
         </div>
 
         ${this._config.show_status !== false
           ? html`
               <ha-textfield
-                .value=${this._config.status_label || 'Status'}
-                .label=${'Custom Status Label (Pretext)'}
+                .value=${this._config.status_label || "Status"}
+                .label=${"Custom Status Label (Pretext)"}
                 @input=${(e: Event) =>
-                  this._valueChanged('status_label', (e.target as HTMLInputElement).value)}
+                  this._valueChanged(
+                    "status_label",
+                    (e.target as HTMLInputElement).value,
+                  )}
               ></ha-textfield>
 
               <ha-entity-picker
                 .hass=${this.hass}
-                .value=${this._config.status_entity || ''}
-                .label=${'Manual Status Label (Entity Override)'}
+                .value=${this._config.status_entity || ""}
+                .label=${"Manual Status Label (Entity Override)"}
                 @value-changed=${(e: CustomEvent) =>
-                  this._valueChanged('status_entity', e.detail.value)}
+                  this._valueChanged("status_entity", e.detail.value)}
                 allow-custom-entity
               ></ha-entity-picker>
 
               ${this._config.status_entity
                 ? html`
                     <ha-textfield
-                      .value=${this._config.status_entity_attribute || ''}
-                      .label=${'Status Entity Attribute (Optional)'}
+                      .value=${this._config.status_entity_attribute || ""}
+                      .label=${"Status Entity Attribute (Optional)"}
                       @input=${(e: Event) =>
-                        this._valueChanged('status_entity_attribute', (e.target as HTMLInputElement).value)}
+                        this._valueChanged(
+                          "status_entity_attribute",
+                          (e.target as HTMLInputElement).value,
+                        )}
                     ></ha-textfield>
                   `
                 : nothing}
@@ -836,8 +966,8 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
                     .value=${String(statusOpacity)}
                     @input=${(e: Event) =>
                       this._valueChanged(
-                        'status_opacity',
-                        Number((e.target as HTMLInputElement).value)
+                        "status_opacity",
+                        Number((e.target as HTMLInputElement).value),
                       )}
                   />
                   <span class="slider-label">100%</span>
@@ -860,7 +990,11 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
     this._fireConfigChanged(newConfig);
   }
 
-  private _updateRule(index: number, key: keyof StateRule, value: string): void {
+  private _updateRule(
+    index: number,
+    key: keyof StateRule,
+    value: string,
+  ): void {
     const rules = [...(this._config.rules || [])];
     rules[index] = { ...rules[index], [key]: value };
     this._fireConfigChanged({ ...this._config, rules });
@@ -869,11 +1003,11 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
   private _addRule(): void {
     const rules = [...(this._config.rules || [])];
     rules.push({
-      state: '',
-      title: '',
-      subtitle: '',
-      icon: 'mdi:information',
-      color: '#9E9E9E',
+      state: "",
+      title: "",
+      subtitle: "",
+      icon: "mdi:information",
+      color: "#9E9E9E",
     });
     this._fireConfigChanged({ ...this._config, rules });
     this._expandedRule = rules.length - 1;
@@ -894,7 +1028,10 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
   }
 
   private _updateDefault(key: string, value: string): void {
-    const defaultConfig: Partial<DisplayConfig> = { ...(this._config.default || {}), [key]: value };
+    const defaultConfig: Partial<DisplayConfig> = {
+      ...(this._config.default || {}),
+      [key]: value,
+    };
     this._fireConfigChanged({ ...this._config, default: defaultConfig });
   }
 
@@ -903,7 +1040,11 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
     this._fireConfigChanged({ ...this._config, color_map: colorMap });
   }
 
-  private _updateColorMapKey(oldKey: string, newKey: string, value: string): void {
+  private _updateColorMapKey(
+    oldKey: string,
+    newKey: string,
+    value: string,
+  ): void {
     if (oldKey === newKey) return;
     const colorMap = { ...(this._config.color_map || {}) };
     delete colorMap[oldKey];
@@ -912,7 +1053,10 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
   }
 
   private _addColorMap(): void {
-    const colorMap = { ...(this._config.color_map || {}), new_color: '#9E9E9E' };
+    const colorMap = {
+      ...(this._config.color_map || {}),
+      new_color: "#9E9E9E",
+    };
     this._fireConfigChanged({ ...this._config, color_map: colorMap });
   }
 
@@ -923,12 +1067,17 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
   }
 
   private _updateButtonAction(key: string, value: string | undefined): void {
-    const buttonActions: ButtonAction[] = [...(this._config.button_actions || [
-      { selector: '.update-btn', tap_action: { action: 'none' } as any },
-    ])];
+    const buttonActions: ButtonAction[] = [
+      ...(this._config.button_actions || [
+        { selector: ".update-btn", tap_action: { action: "none" } as any },
+      ]),
+    ];
 
     if (!buttonActions[0]) {
-      buttonActions[0] = { selector: '.update-btn', tap_action: { action: 'none' } as any };
+      buttonActions[0] = {
+        selector: ".update-btn",
+        tap_action: { action: "none" } as any,
+      };
     }
 
     (buttonActions[0] as any)[key] = value;
@@ -936,20 +1085,26 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
   }
 
   private _updateButtonTapAction(key: string, value: string): void {
-    const buttonActions: ButtonAction[] = [...(this._config.button_actions || [])];
+    const buttonActions: ButtonAction[] = [
+      ...(this._config.button_actions || []),
+    ];
 
     if (!buttonActions[0]) {
       buttonActions[0] = {
-        selector: '.update-btn',
-        tap_action: { action: 'call-service', service: '', target: {} } as any,
+        selector: ".update-btn",
+        tap_action: { action: "call-service", service: "", target: {} } as any,
       };
     }
 
     if (!buttonActions[0].tap_action) {
-      buttonActions[0].tap_action = { action: 'call-service', service: '', target: {} } as any;
+      buttonActions[0].tap_action = {
+        action: "call-service",
+        service: "",
+        target: {},
+      } as any;
     }
 
-    if (key === 'target') {
+    if (key === "target") {
       buttonActions[0].tap_action = {
         ...(buttonActions[0].tap_action as any),
         target: { entity_id: value },
@@ -957,8 +1112,8 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
     } else {
       const tap = buttonActions[0].tap_action as any;
       tap[key] = value;
-      if (key === 'service') {
-        tap.action = 'call-service';
+      if (key === "service") {
+        tap.action = "call-service";
       }
     }
 
@@ -966,7 +1121,7 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
   }
 
   private _fireConfigChanged(config: StatusBannerCardConfig): void {
-    const event = new CustomEvent('config-changed', {
+    const event = new CustomEvent("config-changed", {
       detail: { config },
       bubbles: true,
       composed: true,
@@ -1101,7 +1256,7 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
         align-items: center;
       }
 
-      .color-input input[type='color'] {
+      .color-input input[type="color"] {
         width: 48px;
         height: 48px;
         border: none;
@@ -1132,7 +1287,7 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
         margin-bottom: 0;
       }
 
-      .color-map-item input[type='color'] {
+      .color-map-item input[type="color"] {
         width: 40px;
         height: 40px;
         border: none;
@@ -1167,7 +1322,7 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
         gap: 8px;
       }
 
-      .slider-container input[type='range'] {
+      .slider-container input[type="range"] {
         flex: 1;
         height: 4px;
         -webkit-appearance: none;
@@ -1177,7 +1332,7 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
         outline: none;
       }
 
-      .slider-container input[type='range']::-webkit-slider-thumb {
+      .slider-container input[type="range"]::-webkit-slider-thumb {
         -webkit-appearance: none;
         appearance: none;
         width: 16px;
@@ -1187,7 +1342,7 @@ export class LovelaceMultiStateEntitiesCardEditor extends LitElement {
         cursor: pointer;
       }
 
-      .slider-container input[type='range']::-moz-range-thumb {
+      .slider-container input[type="range"]::-moz-range-thumb {
         width: 16px;
         height: 16px;
         border-radius: 50%;

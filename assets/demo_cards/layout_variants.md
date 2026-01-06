@@ -9,8 +9,7 @@ Standard diagonal split with right-aligned content.
 ```yaml
 type: custom:lovelace-multi-state-entities-card
 entity: sensor.mailbox
-accent_start: bottom-left
-accent_end: top-right
+accent_corner: bottom-left
 title_alignment: right
 icon_alignment: right
 rules:
@@ -27,8 +26,7 @@ Left-aligned with an opposite diagonal accent.
 ```yaml
 type: custom:lovelace-multi-state-entities-card
 entity: sensor.alarm_status
-accent_start: bottom-right
-accent_end: top-left
+accent_corner: bottom-right
 title_alignment: left
 icon_alignment: left
 rules:
@@ -62,14 +60,87 @@ A subtle 10px line at the top, no status box.
 ```yaml
 type: custom:lovelace-multi-state-entities-card
 entity: sensor.hvac_mode
-accent_start: top-left
-accent_end: top-right
+accent_corner: top-left
+accent_width: 100
 accent_height: 10
 show_status: false
 rules:
   - state: "COOLING"
     color: "#2196F3"
     title: "AC IS RUNNING"
+```
+
+## 6. Centered Hero Card
+
+Symmetrical accent at the bottom with centered large icon.
+
+```yaml
+type: custom:lovelace-multi-state-entities-card
+entity: sensor.house_presence
+accent_corner: bottom-left
+accent_width: 100
+accent_height: 40
+title_alignment: center
+icon_alignment: center
+icon_size: 60px
+rules:
+  - state: "HOME"
+    color: "#8BC34A"
+    title: "WELCOME HOME"
+    icon: mdi:home-heart
+```
+
+## 7. Vertical Indicator Bar
+
+A thin 15px bar on the left edge.
+
+```yaml
+type: custom:lovelace-multi-state-entities-card
+entity: sensor.battery_level
+accent_corner: top-left
+accent_width: 15
+accent_height: 100
+rules:
+  - state: "/[0-2][0-9]/" # Below 30%
+    color: "#F44336"
+    title: "BATTERY LOW"
+    subtitle: "{{ state }}% Remaining"
+```
+
+## 8. Split Personality
+
+Different alignments for title and icon.
+
+```yaml
+type: custom:lovelace-multi-state-entities-card
+entity: sensor.commute_time
+title_alignment: left
+icon_alignment: right
+accent_corner: top-right
+accent_width: 50
+accent_height: 100
+rules:
+  - state: "/.*/"
+    color: "#673AB7"
+    title: "WORK COMMUTE"
+    subtitle: "{{ state }} mins via I-95"
+```
+
+## 9. The Notification Dot
+
+Small 30x30 triangle in the top-right corner.
+
+```yaml
+type: custom:lovelace-multi-state-entities-card
+entity: sensor.update_available
+accent_corner: top-right
+accent_height: 30
+accent_width: 30
+rules:
+  - state: "YES"
+    color: "#E91E63"
+    title: "SOFTWARE UPDATE"
+    subtitle: "Version 2.4.1 Ready"
 ```
 
 ## 5. The "Glass" Banner
@@ -209,15 +280,14 @@ rules:
     button_text: "RESET"
 ```
 
-## 13. Double Inverted Wedges
+## 13. Corner Wedge
 
-Accent covers top-left and bottom-right corners.
+Accent anchored at a specific corner.
 
 ```yaml
 type: custom:lovelace-multi-state-entities-card
 entity: sensor.network_traffic
-accent_start: top-left
-accent_end: bottom-right
+accent_corner: top-left
 rules:
   - state: "/.*/"
     color: "#3F51B5"

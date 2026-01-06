@@ -1,72 +1,38 @@
-import { LitElement, html, nothing, PropertyValues, TemplateResult } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
-import { ActionConfig } from 'custom-card-helpers';
+import { LitElement, html, nothing, PropertyValues, TemplateResult } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
+import { ActionConfig } from "custom-card-helpers";
 import {
   StatusBannerCardConfig,
   DisplayData,
   HomeAssistantFixed,
   ButtonAction,
   TemplateContext,
-} from './types';
-import { resolveDisplayData } from './rules/matcher';
-import { parseTemplate } from './template/parser';
-import { styles } from './styles';
-import { DEFAULT_CONFIG, CARD_INFO } from './constants';
+} from "./types";
+import { resolveDisplayData } from "./rules/matcher";
+import { parseTemplate } from "./template/parser";
+import { styles } from "./styles";
+import { DEFAULT_CONFIG, CARD_INFO } from "./constants";
 
 // Type for corner positions
-type Corner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
-type Position = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
-
-// Corner coordinate mapping
-const CORNER_COORDS: Record<Corner, string> = {
-  'top-left': '0 0',
-  'top-right': '100% 0',
-  'bottom-left': '0 100%',
-  'bottom-right': '100% 100%',
-};
+type Corner = "top-left" | "top-right" | "bottom-left" | "bottom-right";
+type Position = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 
 /**
- * Calculate clip-path polygon for triangle based on start/end corners
- * The third point is determined to create a triangle along the card edges
+ * Calculate clip-path polygon for triangle based on origin corner
  */
-function calculateTriangleClipPath(start: Corner, end: Corner): string {
-  // If same corner, return empty (no triangle)
-  if (start === end) {
-    return 'none';
+function calculateTriangleClipPath(corner: Corner): string {
+  switch (corner) {
+    case "top-left":
+      return "polygon(0 0, 100% 0, 0 100%)";
+    case "top-right":
+      return "polygon(0 0, 100% 0, 100% 100%)";
+    case "bottom-left":
+      return "polygon(0 0, 0 100%, 100% 100%)";
+    case "bottom-right":
+      return "polygon(100% 0, 0 100%, 100% 100%)";
+    default:
+      return "none";
   }
-
-  const startCoord = CORNER_COORDS[start];
-  const endCoord = CORNER_COORDS[end];
-
-  // Determine the third corner to complete the triangle
-  // We pick the corner that shares an edge with both start and end
-  const corners: Corner[] = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
-  const edges: Record<Corner, Corner[]> = {
-    'top-left': ['top-right', 'bottom-left'],
-    'top-right': ['top-left', 'bottom-right'],
-    'bottom-left': ['top-left', 'bottom-right'],
-    'bottom-right': ['top-right', 'bottom-left'],
-  };
-
-  // Find corner that shares edge with both start and end
-  let thirdCorner: Corner | null = null;
-  for (const corner of corners) {
-    if (corner === start || corner === end) continue;
-    const adjacentToStart = edges[start].includes(corner);
-    const adjacentToEnd = edges[end].includes(corner);
-    if (adjacentToStart && adjacentToEnd) {
-      thirdCorner = corner;
-      break;
-    }
-  }
-
-  // If no shared adjacent corner (diagonal), pick start's first adjacent
-  if (!thirdCorner) {
-    thirdCorner = edges[start][0];
-  }
-
-  const thirdCoord = CORNER_COORDS[thirdCorner];
-  return `polygon(${startCoord}, ${endCoord}, ${thirdCoord})`;
 }
 
 // Declare the customCards array on window
@@ -82,7 +48,7 @@ declare global {
   }
 }
 
-@customElement('lovelace-multi-state-entities-card')
+@customElement("lovelace-multi-state-entities-card")
 export class LovelaceMultiStateEntitiesCard extends LitElement {
   // ─────────────────────────────────────────────────────────────
   // Properties
@@ -117,17 +83,23 @@ export class LovelaceMultiStateEntitiesCard extends LitElement {
   }
 
   public getCardSize(): number {
-    if (this._config?.show_status === false && this._config?.show_footer === false) return 2;
+    if (
+      this._config?.show_status === false &&
+      this._config?.show_footer === false
+    )
+      return 2;
     return 3;
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
-    if (changedProps.has('_config')) {
+    if (changedProps.has("_config")) {
       return true;
     }
 
-    if (changedProps.has('hass')) {
-      const oldHass = changedProps.get('hass') as HomeAssistantFixed | undefined;
+    if (changedProps.has("hass")) {
+      const oldHass = changedProps.get("hass") as
+        | HomeAssistantFixed
+        | undefined;
       if (!oldHass) return true;
 
       // Check if relevant entities changed
@@ -177,33 +149,33 @@ export class LovelaceMultiStateEntitiesCard extends LitElement {
   // ─────────────────────────────────────────────────────────────
 
   public static getConfigElement(): HTMLElement {
-    return document.createElement('lovelace-multi-state-entities-card-editor');
+    return document.createElement("lovelace-multi-state-entities-card-editor");
   }
 
   public static getStubConfig(): Partial<StatusBannerCardConfig> {
     return {
-      entity: '',
+      entity: "",
       rules: [
         {
-          state: 'on',
-          title: 'Active',
-          subtitle: 'System is running',
-          icon: 'mdi:check-circle',
-          color: '#4CAF50',
+          state: "on",
+          title: "Active",
+          subtitle: "System is running",
+          icon: "mdi:check-circle",
+          color: "#4CAF50",
         },
         {
-          state: 'off',
-          title: 'Inactive',
-          subtitle: 'System is idle',
-          icon: 'mdi:power-standby',
-          color: '#9E9E9E',
+          state: "off",
+          title: "Inactive",
+          subtitle: "System is idle",
+          icon: "mdi:power-standby",
+          color: "#9E9E9E",
         },
       ],
       default: {
-        title: '{{ state | upper }}',
-        subtitle: '',
-        icon: 'mdi:information',
-        color: '#2196F3',
+        title: "{{ state | upper }}",
+        subtitle: "",
+        icon: "mdi:information",
+        color: "#2196F3",
       },
     };
   }
@@ -235,7 +207,7 @@ export class LovelaceMultiStateEntitiesCard extends LitElement {
       this._config.rules,
       this._config.default,
       this._config.color_map,
-      this._config.status_label
+      this._config.status_label,
     );
 
     const showStatus = this._config.show_status !== false;
@@ -248,13 +220,16 @@ export class LovelaceMultiStateEntitiesCard extends LitElement {
     const accentWidth = this._config.accent_width ?? 60;
     const accentHeight = this._config.accent_height ?? 100;
     const accentFullBackground = this._config.accent_full_background ?? false;
-    const accentStart = this._config.accent_start ?? 'bottom-left';
-    const accentEnd = this._config.accent_end ?? 'top-right';
+    const accentCorner = this._config.accent_corner ?? "bottom-left";
 
     // Calculate clip-path for triangle (or none for full background)
-    const clipPath = accentFullBackground ? 'none' : calculateTriangleClipPath(accentStart, accentEnd);
-    const accentWidthStyle = accentFullBackground ? '100%' : `${accentWidth}%`;
-    const accentHeightStyle = accentFullBackground ? '100%' : `${accentHeight}%`;
+    const clipPath = accentFullBackground
+      ? "none"
+      : calculateTriangleClipPath(accentCorner);
+    const accentWidthStyle = accentFullBackground ? "100%" : `${accentWidth}%`;
+    const accentHeightStyle = accentFullBackground
+      ? "100%"
+      : `${accentHeight}%`;
 
     // Text color overrides
     const titleColor = this._config.title_color;
@@ -262,14 +237,17 @@ export class LovelaceMultiStateEntitiesCard extends LitElement {
     const timestampColor = this._config.timestamp_color;
 
     // Alignment settings
-    const titleAlignment: 'left' | 'center' | 'right' = this._config.title_alignment ?? 'right';
-    const subtitleAlignment: 'left' | 'center' | 'right' = this._config.subtitle_alignment ?? titleAlignment;
-    const iconAlignment: 'left' | 'center' | 'right' = this._config.icon_alignment ?? 'right';
+    const titleAlignment: "left" | "center" | "right" =
+      this._config.title_alignment ?? "right";
+    const subtitleAlignment: "left" | "center" | "right" =
+      this._config.subtitle_alignment ?? titleAlignment;
+    const iconAlignment: "left" | "center" | "right" =
+      this._config.icon_alignment ?? "right";
 
     // Position settings
-    const timestampPosition = this._config.timestamp_position ?? 'bottom-left';
-    const timestampAlignment = this._config.last_execution_alignment ?? 'left';
-    const buttonPosition = this._config.button_position ?? 'bottom-right';
+    const timestampPosition = this._config.timestamp_position ?? "bottom-left";
+    const timestampAlignment = this._config.last_execution_alignment ?? "left";
+    const buttonPosition = this._config.button_position ?? "bottom-right";
 
     return html`
       <ha-card @click=${this._handleCardClick}>
@@ -279,13 +257,30 @@ export class LovelaceMultiStateEntitiesCard extends LitElement {
         >
           ${showAccent
             ? html`<div
-                class="card-accent ${showPattern ? 'with-pattern' : ''}"
+                class="card-accent ${showPattern ? "with-pattern" : ""}"
                 style="--accent-color: ${display.color}; --accent-width: ${accentWidthStyle}; --accent-height: ${accentHeightStyle}; --pattern-size: ${patternSize}px; clip-path: ${clipPath}"
               ></div>`
             : nothing}
-          ${this._renderHeader(display, titleAlignment, subtitleAlignment, iconAlignment, titleColor, subtitleColor)}
-          ${showStatus && display.statusText ? this._renderStatusBox(display) : nothing}
-          ${showFooter ? this._renderFooterElements(display, timestampPosition, timestampAlignment, buttonPosition, timestampColor) : nothing}
+          ${this._renderHeader(
+            display,
+            titleAlignment,
+            subtitleAlignment,
+            iconAlignment,
+            titleColor,
+            subtitleColor,
+          )}
+          ${showStatus && display.statusText
+            ? this._renderStatusBox(display)
+            : nothing}
+          ${showFooter
+            ? this._renderFooterElements(
+                display,
+                timestampPosition,
+                timestampAlignment,
+                buttonPosition,
+                timestampColor,
+              )
+            : nothing}
         </div>
       </ha-card>
     `;
@@ -293,68 +288,106 @@ export class LovelaceMultiStateEntitiesCard extends LitElement {
 
   private _renderHeader(
     display: DisplayData,
-    titleAlignment: 'left' | 'center' | 'right',
-    subtitleAlignment: 'left' | 'center' | 'right',
-    iconAlignment: 'left' | 'center' | 'right',
+    titleAlignment: "left" | "center" | "right",
+    subtitleAlignment: "left" | "center" | "right",
+    iconAlignment: "left" | "center" | "right",
     titleColor?: string,
-    subtitleColor?: string
+    subtitleColor?: string,
   ): TemplateResult {
     // Determine flex layout based on alignments
     let justifyContent: string;
-    let flexDirection = 'row';
+    let flexDirection = "row";
 
     // When icon is centered, stack vertically
-    if (iconAlignment === 'center') {
-      flexDirection = 'column';
-      justifyContent = 'center';
-    } else if (titleAlignment === 'center') {
+    if (iconAlignment === "center") {
+      flexDirection = "column";
+      justifyContent = "center";
+    } else if (titleAlignment === "center") {
       // Title centered with icon on a side (iconAlignment is already not 'center' here)
-      justifyContent = iconAlignment === 'left' ? 'flex-start' : 'flex-end';
+      justifyContent = iconAlignment === "left" ? "flex-start" : "flex-end";
     } else {
       const sameAlignment = titleAlignment === iconAlignment;
       if (sameAlignment) {
-        justifyContent = titleAlignment === 'right' ? 'flex-end' : 'flex-start';
+        justifyContent = titleAlignment === "right" ? "flex-end" : "flex-start";
       } else {
-        justifyContent = 'space-between';
+        justifyContent = "space-between";
       }
     }
 
     // Icon order: determines position in flex layout
-    const iconOrder = iconAlignment === 'left' ? -1 : (iconAlignment === 'center' ? 0 : 1);
-    const textOrder = titleAlignment === 'left' ? -1 : (titleAlignment === 'center' ? 0 : 1);
+    const iconOrder =
+      iconAlignment === "left" ? -1 : iconAlignment === "center" ? 0 : 1;
+    const textOrder =
+      titleAlignment === "left" ? -1 : titleAlignment === "center" ? 0 : 1;
 
     // Text alignment (Title container)
     const textAlign = titleAlignment;
 
     // Margin: when same side (not center), add gap between icon and text
-    const sameNonCenterAlignment = titleAlignment === iconAlignment && titleAlignment !== 'center';
+    const sameNonCenterAlignment =
+      titleAlignment === iconAlignment && titleAlignment !== "center";
     const textMargin = sameNonCenterAlignment
-      ? (titleAlignment === 'right' ? 'margin-right: 20px;' : 'margin-left: 20px;')
-      : (titleAlignment === 'center' && iconAlignment !== 'center' ? 'flex: 1; margin: 0 20px;' : '');
+      ? titleAlignment === "right"
+        ? "margin-right: 20px;"
+        : "margin-left: 20px;"
+      : titleAlignment === "center" && iconAlignment !== "center"
+        ? "flex: 1; margin: 0 20px;"
+        : "";
 
     // Title text: when icon is centered, it's above/below.
     // Otherwise, it might need to flex to push icon to edge.
-    const textFlex = titleAlignment === 'center' && iconAlignment !== 'center' ? 'flex: 1;' : '';
+    const textFlex =
+      titleAlignment === "center" && iconAlignment !== "center"
+        ? "flex: 1;"
+        : "";
 
     return html`
-      <div class="header" style="--header-height: ${this._config.header_height}">
-        <div class="header-content" style="justify-content: ${justifyContent}; flex-direction: ${flexDirection};">
-          <div class="header-text" style="
+      <div
+        class="header"
+        style="--header-height: ${this._config.header_height}"
+      >
+        <div
+          class="header-content"
+          style="justify-content: ${justifyContent}; flex-direction: ${flexDirection};"
+        >
+          <div
+            class="header-text"
+            style="
             text-align: ${textAlign};
             order: ${textOrder};
             ${textFlex}
             ${textMargin}
-            ${display.titleFontSize ? `--title-font-size: ${display.titleFontSize};` : ''}
-            ${display.subtitleFontSize ? `--subtitle-font-size: ${display.subtitleFontSize};` : ''}
-          ">
-            <div class="title" style="${titleColor ? `color: ${titleColor};` : ''}">${display.title}</div>
-            ${display.subtitle ? html`<div class="subtitle" style="text-align: ${subtitleAlignment}; ${subtitleColor ? `color: ${subtitleColor};` : ''}">${display.subtitle}</div>` : nothing}
+            ${display.titleFontSize
+              ? `--title-font-size: ${display.titleFontSize};`
+              : ""}
+            ${display.subtitleFontSize
+              ? `--subtitle-font-size: ${display.subtitleFontSize};`
+              : ""}
+          "
+          >
+            <div
+              class="title"
+              style="${titleColor ? `color: ${titleColor};` : ""}"
+            >
+              ${display.title}
+            </div>
+            ${display.subtitle
+              ? html`<div
+                  class="subtitle"
+                  style="text-align: ${subtitleAlignment}; ${subtitleColor
+                    ? `color: ${subtitleColor};`
+                    : ""}"
+                >
+                  ${display.subtitle}
+                </div>`
+              : nothing}
           </div>
 
           <ha-icon
             class="header-icon"
             .icon=${display.icon}
-            style="--mdc-icon-size: ${this._config.icon_size}; color: ${this._config.icon_color || display.color}; order: ${iconOrder};"
+            style="--mdc-icon-size: ${this._config.icon_size}; color: ${this
+              ._config.icon_color || display.color}; order: ${iconOrder};"
           ></ha-icon>
         </div>
       </div>
@@ -370,7 +403,9 @@ export class LovelaceMultiStateEntitiesCard extends LitElement {
       const statusEntity = this.hass.states[this._config.status_entity];
       if (statusEntity) {
         if (this._config.status_entity_attribute) {
-          statusText = String(statusEntity.attributes[this._config.status_entity_attribute] ?? '');
+          statusText = String(
+            statusEntity.attributes[this._config.status_entity_attribute] ?? "",
+          );
         } else {
           statusText = statusEntity.state;
         }
@@ -380,7 +415,9 @@ export class LovelaceMultiStateEntitiesCard extends LitElement {
     return html`
       <div class="body">
         <div class="status-box" style="--status-opacity: ${statusOpacity}">
-          <span class="status-label" style="color: ${display.color}">${display.statusLabel}:</span>
+          <span class="status-label" style="color: ${display.color}"
+            >${display.statusLabel}:</span
+          >
           <span class="status-text">${statusText}</span>
         </div>
       </div>
@@ -390,9 +427,9 @@ export class LovelaceMultiStateEntitiesCard extends LitElement {
   private _renderFooterElements(
     display: DisplayData,
     timestampPosition: Position,
-    timestampAlignment: 'left' | 'right',
+    timestampAlignment: "left" | "right",
     buttonPosition: Position,
-    timestampColor?: string
+    timestampColor?: string,
   ): TemplateResult {
     const timestamp = this._getTimestamp();
     const buttonAction = this._config.button_actions?.[0];
@@ -402,15 +439,22 @@ export class LovelaceMultiStateEntitiesCard extends LitElement {
     }
 
     // Determine which elements go left vs right (ignoring top positions for footer)
-    const timestampOnLeft = timestampPosition.includes('left');
-    const buttonOnLeft = buttonPosition.includes('left');
+    const timestampOnLeft = timestampPosition.includes("left");
+    const buttonOnLeft = buttonPosition.includes("left");
 
     // Build left and right content arrays
     const leftContent: TemplateResult[] = [];
     const rightContent: TemplateResult[] = [];
 
     if (timestamp) {
-      const timestampHtml = html`<div class="timestamp" style="text-align: ${timestampAlignment}; width: 100%; ${timestampColor ? `color: ${timestampColor};` : ''}">Last Check: ${timestamp}</div>`;
+      const timestampHtml = html`<div
+        class="timestamp"
+        style="text-align: ${timestampAlignment}; width: 100%; ${timestampColor
+          ? `color: ${timestampColor};`
+          : ""}"
+      >
+        Last Check: ${timestamp}
+      </div>`;
       if (timestampOnLeft) {
         leftContent.push(timestampHtml);
       } else {
@@ -426,68 +470,80 @@ export class LovelaceMultiStateEntitiesCard extends LitElement {
         // Wait, standard flex-direction: column stacks top-to-bottom.
         // If user wants timestamp UNDER button, button must be first in the array.
         if (timestampOnLeft) {
-           leftContent.unshift(buttonHtml);
+          leftContent.unshift(buttonHtml);
         } else {
-           leftContent.push(buttonHtml);
+          leftContent.push(buttonHtml);
         }
       } else {
         // Button on right
         if (!timestampOnLeft) {
-           // Timestamp is also on right.
-           // We want timestamp UNDER button.
-           // flex-direction column (align-items flex-end).
-           // First item is top. So button first.
-           rightContent.unshift(buttonHtml);
+          // Timestamp is also on right.
+          // We want timestamp UNDER button.
+          // flex-direction column (align-items flex-end).
+          // First item is top. So button first.
+          rightContent.unshift(buttonHtml);
         } else {
-           rightContent.push(buttonHtml);
+          rightContent.push(buttonHtml);
         }
       }
     }
 
     // Determine footer class based on content distribution
-    let footerClass = 'footer';
+    let footerClass = "footer";
     if (leftContent.length > 0 && rightContent.length === 0) {
-      footerClass += ' left-only';
+      footerClass += " left-only";
     } else if (rightContent.length > 0 && leftContent.length === 0) {
-      footerClass += ' right-only';
+      footerClass += " right-only";
     }
 
     return html`
       <div class="${footerClass}">
-        ${leftContent.length > 0 ? html`<div class="footer-left">${leftContent}</div>` : nothing}
-        ${rightContent.length > 0 ? html`<div class="footer-right">${rightContent}</div>` : nothing}
+        ${leftContent.length > 0
+          ? html`<div class="footer-left">${leftContent}</div>`
+          : nothing}
+        ${rightContent.length > 0
+          ? html`<div class="footer-right">${rightContent}</div>`
+          : nothing}
       </div>
     `;
   }
 
-  private _renderButton(action: ButtonAction, display: DisplayData): TemplateResult {
+  private _renderButton(
+    action: ButtonAction,
+    display: DisplayData,
+  ): TemplateResult {
     // Create template context for button label
     const entity = this.hass.states[this._config.entity];
     const context: TemplateContext = {
       hass: this.hass,
       entity: this._config.entity,
-      state: entity?.state || '',
+      state: entity?.state || "",
       attr: entity?.attributes || {},
       colorMap: this._config.color_map,
     };
 
-    const label = action.label ? parseTemplate(action.label, context) : 'Update';
-    const buttonType = action.type || 'service';
+    const label = action.label
+      ? parseTemplate(action.label, context)
+      : "Update";
+    const buttonType = action.type || "service";
 
     // Handle toggle type visual state
     let isActive = false;
-    if (buttonType === 'toggle' && action.entity) {
+    if (buttonType === "toggle" && action.entity) {
       const stateObj = this.hass.states[action.entity];
-      isActive = stateObj && stateObj.state === 'on';
+      isActive = stateObj && stateObj.state === "on";
     }
 
     return html`
       <button
-        class="action-btn ${action.selector?.replace('.', '') || 'update-btn'} ${isActive ? 'active' : ''}"
+        class="action-btn ${action.selector?.replace(".", "") ||
+        "update-btn"} ${isActive ? "active" : ""}"
         style="background-color: ${action.color || display.color}"
         @click=${(e: Event) => this._handleButtonClick(e, action)}
       >
-        ${action.icon ? html`<ha-icon icon="${action.icon}"></ha-icon>` : nothing}
+        ${action.icon
+          ? html`<ha-icon icon="${action.icon}"></ha-icon>`
+          : nothing}
         <span>${label}</span>
       </button>
     `;
@@ -499,17 +555,20 @@ export class LovelaceMultiStateEntitiesCard extends LitElement {
     const entity = this.hass.states[this._config.timestamp_entity];
     if (!entity) return null;
 
-    const attr = this._config.timestamp_attribute || 'last_triggered';
+    const attr = this._config.timestamp_attribute || "last_triggered";
     const value = (entity.attributes[attr] as string) || entity.state;
 
-    if (!value || value === 'unknown' || value === 'unavailable') {
+    if (!value || value === "unknown" || value === "unavailable") {
       return null;
     }
 
     try {
       const date = new Date(value);
       if (isNaN(date.getTime())) return null;
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      return date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
     } catch {
       return null;
     }
@@ -520,7 +579,10 @@ export class LovelaceMultiStateEntitiesCard extends LitElement {
   // ─────────────────────────────────────────────────────────────
 
   private _handleCardClick(): void {
-    if (!this._config.tap_action || this._config.tap_action.action === 'more-info') {
+    if (
+      !this._config.tap_action ||
+      this._config.tap_action.action === "more-info"
+    ) {
       this._showMoreInfo();
       return;
     }
@@ -536,22 +598,24 @@ export class LovelaceMultiStateEntitiesCard extends LitElement {
 
   private _executeAction(
     action: ActionConfig,
-    buttonAction?: ButtonAction
+    buttonAction?: ButtonAction,
   ): void {
     if (!action && !buttonAction) return;
 
     // Handle Button Type actions
     if (buttonAction?.type) {
       switch (buttonAction.type) {
-        case 'toggle':
+        case "toggle":
           if (buttonAction.entity) {
-            this.hass.callService('homeassistant', 'toggle', { entity_id: buttonAction.entity });
+            this.hass.callService("homeassistant", "toggle", {
+              entity_id: buttonAction.entity,
+            });
           }
           return;
 
-        case 'more-info':
+        case "more-info":
           if (buttonAction.entity) {
-            const event = new CustomEvent('hass-more-info', {
+            const event = new CustomEvent("hass-more-info", {
               bubbles: true,
               composed: true,
               detail: { entityId: buttonAction.entity },
@@ -560,25 +624,29 @@ export class LovelaceMultiStateEntitiesCard extends LitElement {
           }
           return;
 
-        case 'navigate':
-          if (action && 'navigation_path' in action && action.navigation_path) {
-            window.history.pushState(null, '', action.navigation_path);
-            window.dispatchEvent(new Event('location-changed'));
+        case "navigate":
+          if (action && "navigation_path" in action && action.navigation_path) {
+            window.history.pushState(null, "", action.navigation_path);
+            window.dispatchEvent(new Event("location-changed"));
           }
           return;
 
-        case 'url':
-          if (action && 'url_path' in action && action.url_path) {
-            window.open(action.url_path, '_blank');
+        case "url":
+          if (action && "url_path" in action && action.url_path) {
+            window.open(action.url_path, "_blank");
           }
           return;
 
-        case 'assist':
+        case "assist":
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (this.hass as any).callService('assist_satellite', 'start_conversation', {});
+          (this.hass as any).callService(
+            "assist_satellite",
+            "start_conversation",
+            {},
+          );
           return;
 
-        case 'service':
+        case "service":
         default:
           // Fall through to standard handling
           break;
@@ -588,13 +656,13 @@ export class LovelaceMultiStateEntitiesCard extends LitElement {
     if (!action) return;
 
     switch (action.action) {
-      case 'more-info':
+      case "more-info":
         this._showMoreInfo();
         break;
 
-      case 'call-service': {
+      case "call-service": {
         if (!action.service) break;
-        const [domain, service] = action.service.split('.');
+        const [domain, service] = action.service.split(".");
         this.hass.callService(domain, service, {
           ...action.service_data,
           ...(action.target || {}),
@@ -602,26 +670,26 @@ export class LovelaceMultiStateEntitiesCard extends LitElement {
         break;
       }
 
-      case 'navigate':
+      case "navigate":
         if (action.navigation_path) {
-          window.history.pushState(null, '', action.navigation_path);
-          window.dispatchEvent(new Event('location-changed'));
+          window.history.pushState(null, "", action.navigation_path);
+          window.dispatchEvent(new Event("location-changed"));
         }
         break;
 
-      case 'url':
+      case "url":
         if (action.url_path) {
-          window.open(action.url_path, '_blank');
+          window.open(action.url_path, "_blank");
         }
         break;
 
-      case 'none':
+      case "none":
         break;
     }
   }
 
   private _showMoreInfo(): void {
-    const event = new CustomEvent('hass-more-info', {
+    const event = new CustomEvent("hass-more-info", {
       bubbles: true,
       composed: true,
       detail: { entityId: this._config.entity },
@@ -646,6 +714,6 @@ window.customCards.push({
 // Log version info
 console.info(
   `%c  STATUS-BANNER-CARD  %c  v1.4.2  `,
-  'color: white; background: #2196F3; font-weight: bold;',
-  'color: #2196F3; background: white; font-weight: bold;'
+  "color: white; background: #2196F3; font-weight: bold;",
+  "color: #2196F3; background: white; font-weight: bold;",
 );

@@ -1,4 +1,4 @@
-import { ActionConfig } from 'custom-card-helpers';
+import { ActionConfig } from "custom-card-helpers";
 
 /**
  * Main configuration interface for Status Banner Card
@@ -85,11 +85,8 @@ export interface StatusBannerCardConfig {
   /** Status box background opacity (0-100, default: 90) */
   status_opacity?: number;
 
-  /** Accent triangle start corner (default: bottom-left) */
-  accent_start?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
-
-  /** Accent triangle end corner (default: top-right) */
-  accent_end?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+  /** Accent triangle corner (default: bottom-left) */
+  accent_corner?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
 
   /** Fill entire card background with accent color */
   accent_full_background?: boolean;
@@ -107,22 +104,26 @@ export interface StatusBannerCardConfig {
   icon_color?: string;
 
   /** Title/subtitle alignment (default: right) */
-  title_alignment?: 'left' | 'center' | 'right';
+  title_alignment?: "left" | "center" | "right";
 
   /** Subtitle alignment (default: inherits title) */
-  subtitle_alignment?: 'left' | 'center' | 'right';
+  subtitle_alignment?: "left" | "center" | "right";
 
   /** Icon alignment, independent of title (default: right) */
-  icon_alignment?: 'left' | 'center' | 'right';
+  icon_alignment?: "left" | "center" | "right";
 
   /** Timestamp position (default: bottom-left) */
-  timestamp_position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+  timestamp_position?:
+    | "top-left"
+    | "top-right"
+    | "bottom-left"
+    | "bottom-right";
 
   /** Timestamp/Last Execution alignment (default: left) */
-  last_execution_alignment?: 'left' | 'right';
+  last_execution_alignment?: "left" | "right";
 
   /** Button position (default: bottom-right) */
-  button_position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+  button_position?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
 }
 
 /**
@@ -204,7 +205,7 @@ export interface ButtonAction {
   color?: string;
 
   /** Button Type (helper for editor) */
-  type?: 'service' | 'toggle' | 'more-info' | 'navigate' | 'url' | 'assist';
+  type?: "service" | "toggle" | "more-info" | "navigate" | "url" | "assist";
 
   /** Target entity for toggle/more-info */
   entity?: string;
@@ -232,9 +233,16 @@ export interface TemplateContext {
  */
 export interface HomeAssistantFixed {
   states: Record<string, HassEntity>;
-  callService: (domain: string, service: string, data?: Record<string, unknown>) => Promise<void>;
+  callService: (
+    domain: string,
+    service: string,
+    data?: Record<string, unknown>,
+  ) => Promise<void>;
   formatEntityState: (stateObj: HassEntity) => string;
-  formatEntityAttributeValue: (stateObj: HassEntity, attribute: string) => string;
+  formatEntityAttributeValue: (
+    stateObj: HassEntity,
+    attribute: string,
+  ) => string;
   language: string;
   locale: Record<string, unknown>;
 }
